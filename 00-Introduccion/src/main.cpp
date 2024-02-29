@@ -55,7 +55,7 @@ Box boxCesped;
 Box boxWalls;
 Box boxHighway;
 Box boxLandingPad;
-Sphere esfera1(10, 10);
+Sphere esfera1(10, 10); //Se crea el obejto esfera
 // Models complex instances
 Model modelRock;
 Model modelAircraft;
@@ -229,10 +229,13 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	boxHighway.setShader(&shaderMulLighting);
 
 	boxLandingPad.init();
-	boxLandingPad.setShader(&shaderMulLighting);
+	boxLandingPad.setShader(&shaderMulLighting); 
 
-	esfera1.init();
-	esfera1.setShader(&shaderMulLighting);
+	esfera1.init(); //Se inicializa la esfera
+	esfera1.setShader(&shaderMulLighting);//Shader asociado de cómo queremos renderizar el objeto
+	//Esta línea es para poder conservar en un lugar fijo el onjeto, estático
+	//esfera1.setPosition(glm::vec3(3.0f,2.0f,-10.0f));
+	esfera1.setScale(glm::vec3(3.0, 3.0, 3.0));//scalamiento
 
 	modelRock.loadModel("../models/rock/rock.obj");
 	modelRock.setShader(&shaderMulLighting);
@@ -436,6 +439,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glBindTexture(GL_TEXTURE_2D, textureLandingPadID); // Se enlaza la textura
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Wrapping en el eje v
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
 	if(textureLandingPad.getData()){
@@ -838,12 +842,13 @@ void applicationLoop() {
 		/*******************************************
 		 * Esfera 1
 		*********************************************/
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0);//importante activar la textura
 		glBindTexture(GL_TEXTURE_2D, textureHighwayID);
-		shaderMulLighting.setInt("texture1", 0);
-		esfera1.setScale(glm::vec3(3.0, 3.0, 3.0));
-		esfera1.setPosition(glm::vec3(3.0f, 2.0f, -10.0f));
-		esfera1.render();
+		shaderMulLighting.setInt("texture1", 0);//
+		esfera1.setScale(glm::vec3(3.0, 3.0, 3.0));//scalamiento
+		esfera1.setPosition(glm::vec3(3.0f, 2.0f, -10.0f));//
+		esfera1.render();  //Renfderizado de la esfera
+		
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureWallID);
@@ -863,7 +868,7 @@ void applicationLoop() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureLandingPadID);
 		shaderMulLighting.setInt("texture1", 0);
-		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(2.0, 2.0)));
+		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(1.0, 2.0)));
 		boxLandingPad.render();
 		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(1.0, 1.0)));
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -1002,7 +1007,7 @@ void applicationLoop() {
 
 int main(int argc, char **argv) {
 	init(800, 700, "Window GLFW", false);
-	applicationLoop();
+	applicationLoop();//parametros de los eventos de la ejecución del proyecto
 	destroy();
 	return 1;
 }
