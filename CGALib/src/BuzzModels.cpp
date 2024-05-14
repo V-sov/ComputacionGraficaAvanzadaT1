@@ -1,4 +1,4 @@
-#include "BuzzModels.h"
+#include "Headers/BuzzModels.h"
 
 void BuzzModels::initBuzzModels(Shader & shader) {
     modelBuzzTorso.loadModel("../models/buzz/buzzlightyTorso.obj");
@@ -39,4 +39,31 @@ void BuzzModels::initBuzzModels(Shader & shader) {
     modelBuzzRightWing1.setShader(&shader);
     modelBuzzRightWing2.loadModel("../models/buzz/buzzlightyRightWing2.obj");
     modelBuzzRightWing2.setShader(&shader);
+}
+void BuzzModels::destruir(){
+    modelBuzzHead.destroy();
+	modelBuzzLeftArm.destroy();
+	modelBuzzLeftForeArm.destroy();
+	modelBuzzLeftHand.destroy();
+	modelBuzzTorso.destroy();
+	//Brazo derecho
+	modelBuzzRightArm.destroy();
+	modelBuzzRightForeArm.destroy();
+	modelBuzzRightHand.destroy();
+	//Cadera
+	modelBuzzHip.destroy();
+	//Pierna izquierda
+	modelBuzzLeftThigh.destroy();
+	modelBuzzLeftCalf.destroy();
+	modelBuzzLeftFoot.destroy();
+	//Pierna derecha
+	modelBuzzRightThigh.destroy();
+	modelBuzzRightCalf.destroy();
+	modelBuzzRightFoot.destroy();
+	//Ala izquiera
+	modelBuzzLeftWing1.destroy();
+	modelBuzzLeftWing2.destroy();
+	//Ala derecha
+	modelBuzzRightWing1.destroy();
+	modelBuzzRightWing2.destroy();
 }

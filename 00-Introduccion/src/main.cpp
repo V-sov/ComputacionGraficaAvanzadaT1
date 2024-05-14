@@ -84,7 +84,7 @@ Model modelDartLegoRightLeg;
 
 GLuint textureCespedID, textureWallID, textureWindowID, textureHighwayID, textureLandingPadID;
 GLuint skyboxTextureID;
-
+/*EMPIEZAN LAS DEFINICIONES DE LOS ARCHIVOS DE TEXTURA DEL SKY BOX*/
 GLenum types[6] = {
 GL_TEXTURE_CUBE_MAP_POSITIVE_X,
 GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -93,13 +93,25 @@ GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
 GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
 GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
 
-std::string fileNames[6] = { "../Textures/mp_bloodvalley/blood-valley_ft.tga",
+/*std::string fileNames[6] = { "../Textures/mp_bloodvalley/blood-valley_ft.tga",
 		"../Textures/mp_bloodvalley/blood-valley_bk.tga",
 		"../Textures/mp_bloodvalley/blood-valley_up.tga",
 		"../Textures/mp_bloodvalley/blood-valley_dn.tga",
 		"../Textures/mp_bloodvalley/blood-valley_rt.tga",
-		"../Textures/mp_bloodvalley/blood-valley_lf.tga" };
+		"../Textures/mp_bloodvalley/blood-valley_lf.tga" };*/
+/*std::string fileNames[6] = { "../Textures/mp_vr/vr_ft.tga",
+		"../Textures/mp_vr/vr_bk.tga",
+		"../Textures/mp_vr/vr_up.tga",
+		"../Textures/mp_vr/vr_dn.tga",
+		"../Textures/mp_vr/vr_rt.tga",
+		"../Textures/mp_vr/vr_lf.tga" };*/
 
+std::string fileNames[6] = { "../Textures/Langholmen2/lang_ft.tga",
+		"../Textures/Langholmen2/lang_bk.tga",
+		"../Textures/Langholmen2/lang_up.tga",
+		"../Textures/Langholmen2/lang_dn.tga",
+		"../Textures/Langholmen2/lang_rt.tga",
+		"../Textures/Langholmen2/lang_lf.tga" };
 bool exitApp = false;
 int lastMousePosX, offsetX = 0;
 int lastMousePosY, offsetY = 0;

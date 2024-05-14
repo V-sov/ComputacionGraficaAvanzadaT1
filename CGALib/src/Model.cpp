@@ -83,15 +83,20 @@ void Model::loadModel(const std::string & path) {
 	this->processNode(scene->mRootNode, scene);
 
 	// Se crea la SBB
-	this->sbb.c = glm::vec3((this->aabb.mins.x + this->aabb.maxs.x) / 2.0f,
+	/*this->sbb.c = glm::vec3((this->aabb.mins.x + this->aabb.maxs.x) / 2.0f,
 			(this->aabb.mins.y + this->aabb.maxs.y) / 2.0f,
 			(this->aabb.mins.z + this->aabb.maxs.z) / 2.0f);
 	this->sbb.ratio = sqrt(
 			pow(this->aabb.mins.x - this->aabb.maxs.x, 2)
 					+ pow(this->aabb.mins.y - this->aabb.maxs.y, 2)
-					+ pow(this->aabb.mins.z - this->aabb.maxs.z, 2)) / 2.0f;
+					+ pow(this->aabb.mins.z - this->aabb.maxs.z, 2)) / 2.0f;*/
 
-
+	//se crea la sbb interna
+	float dx = this->aabb.maxs.x - this->aabb.mins.x;
+	float dy = this->aabb.maxs.y - this->aabb.mins.y;
+	float dz = this->aabb.maxs.z - this->aabb.mins.z;
+	this->sbb.ratio = std::max(std::max(dx, dy),dz);
+	
 	// Se crea la obb
 	this->obb.c = this->sbb.c;
 	/*this->obb.e.x = aabb.maxs.x - aabb.mins.x;

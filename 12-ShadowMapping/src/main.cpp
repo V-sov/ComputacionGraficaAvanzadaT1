@@ -140,7 +140,7 @@ bool iniciaPartida = false, presionarOpcion = false;
 
 // Modelo para el render del texto
 FontTypeRendering::FontTypeRendering *modelText;
-
+/*EMPIEZAN LAS DEFINICIONES DE LOS ARCHIVOS DE TEXTURA DEL SKY BOX*/
 GLenum types[6] = {
 GL_TEXTURE_CUBE_MAP_POSITIVE_X,
 GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
