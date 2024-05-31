@@ -1584,7 +1584,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		glm::mat4 invColliderB = glm::mat4(1.0);
 		invColliderB = glm::translate(invColliderB, cinv2);
 		invColliderB = glm::scale(invColliderB, heroeCollider.e * 2.0f);
-		boxCollider.setColor(glm::vec4(1.0, 1.0, 0.0, 1.0)); 
+		boxCollider.setColor(glm::vec4(1.0, 1.0, 0.0, 1.0)); f
 		boxCollider.enableWireMode();
 		boxCollider.render(invColliderB);
 		// Se regresa el color blanco
