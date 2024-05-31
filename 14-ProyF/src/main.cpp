@@ -264,7 +264,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelLampPost2.setShader(&shaderMulLighting);
 
 	// Mayow
-	mayowModelAnimate.loadModel("../models/Heroe.fbx");
+	mayowModelAnimate.loadModel("../models/heroe/Heroe.fbx");
 	mayowModelAnimate.setShader(&shaderMulLighting);
 
 	// Terreno
