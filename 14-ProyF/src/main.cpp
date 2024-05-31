@@ -264,7 +264,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelLampPost2.setShader(&shaderMulLighting);
 
 	// Mayow
-	mayowModelAnimate.loadModel("../models/mayow/personaje2.fbx");
+	mayowModelAnimate.loadModel("../models/Heroe.fbx");
 	mayowModelAnimate.setShader(&shaderMulLighting);
 
 	// Terreno
@@ -638,25 +638,6 @@ bool processInput(bool continueApplication) {
 	offsetX = 0;
 	offsetY = 0;
 
-	// Seleccionar modelo
-	if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
-		enableCountSelected = false;
-		modelSelected++;
-		if(modelSelected > 4)
-			modelSelected = 0;
-		if(modelSelected == 1)
-			modelSelected = 0;
-		if (modelSelected == 2)
-			modelSelected = 0;
-		if(modelSelected == 3)
-			modelSelected = 0;
-		if (modelSelected == 4)
-
-		std::cout << "modelSelected:" << modelSelected << std::endl;
-	}
-	else if(glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE)
-		enableCountSelected = true;
-
 	// Guardar key frames
 	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
 			&& glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
@@ -682,31 +663,32 @@ bool processInput(bool continueApplication) {
 		availableSave = true;
 
 	// Controles de mayow
-	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
 		modelMatrixMayow = glm::rotate(modelMatrixMayow, 0.02f, glm::vec3(0, 1, 0));
 		contadorgiro++;
 		std::cout << contadorgiro << std::endl;
-		animationMayowIndex = 0;
-	} else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+		animationMayowIndex = 2;
+	} else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
 		modelMatrixMayow = glm::rotate(modelMatrixMayow, -0.02f, glm::vec3(0, 1, 0));
 		contadorgiro--;
 		std::cout << contadorgiro << std::endl;
-		animationMayowIndex = 0;
+		animationMayowIndex = 2;
 	}
-	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
 		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, 0.2));
-		animationMayowIndex = 0;
+		animationMayowIndex = 2;
 	}
-	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
 		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -0.2));
-		animationMayowIndex = 0;
+		animationMayowIndex = 2;
 	}
-
-	bool keySpaceStatus = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
-	if(!isJump && keySpaceStatus){
-		isJump = true;
-		startTimeJump = currTime;
-		tmv = 0;
+	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		animationMayowIndex = 1;
+	}
+	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+	{
+		animationMayowIndex = 3;
 	}
 
 	glfwPollEvents();
@@ -970,10 +952,10 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			modelMatrixMayow[3][1] = terrain.getHeightTerrain(modelMatrixMayow[3][0], modelMatrixMayow[3][2]);
 		}
 		glm::mat4 modelMatrixMayowBody = glm::mat4(modelMatrixMayow);
-		modelMatrixMayowBody = glm::scale(modelMatrixMayowBody, glm::vec3(0.021f));
+		modelMatrixMayowBody = glm::scale(modelMatrixMayowBody, glm::vec3(0.01f));
 		mayowModelAnimate.setAnimationIndex(animationMayowIndex);
 		mayowModelAnimate.render(modelMatrixMayowBody);
-		animationMayowIndex = 1;
+		animationMayowIndex = 0;
 
 		/*******************************************
 		 * Skybox
