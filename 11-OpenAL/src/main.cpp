@@ -45,6 +45,8 @@
 // Include Colision headers functions
 #include "Headers/Colisiones.h"
 
+#include "AL/alut.h"  //<> librerias ya default(?), "" librerias dentro del proyecto que se encuentran dentro del CMakelist
+
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
 int screenWidth;
@@ -260,6 +262,35 @@ std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> > col
 // Variables animacion maquina de estados eclipse
 const float avance = 0.1;
 const float giroEclipse = 0.5f;
+
+//Definicion de OpenAL
+#define NUM_BUFFERS 3
+#define NUM_SOURCES 3
+#define NUM_ENVIROMENTS 1
+//Definición de listener
+ALfloat listenerPos[] ={0.0, 0.0, 0.0}; //Posición del listener
+ALfloat listenerVel[] ={0.0, 0.0, 0.0};
+ALfloat listenerOri[] ={0.0, 0.0, 1.0, 0.0, 1.0, 0.0}; // ¡Saber hacia donde está volteando el listener
+//Definición de las fuentes
+ALfloat source0Pos[] = {0.0, 0.0, 0.0};
+ALfloat source0Vel[] = {0.0, 0.0, 0.0};
+//Fuente 1
+ALfloat source1Pos[] = {0.0, 0.0, 0.0};
+ALfloat source1Vel[] = {0.0, 0.0, 0.0};
+//Fuente 2
+ALfloat source2Pos[] = {0.0, 0.0, 0.0};
+ALfloat source2Vel[] = {0.0, 0.0, 0.0};
+//Buffers 
+ALuint buffer[NUM_BUFFERS];
+ALuint source[NUM_SOURCES];
+ALuint enviroment[NUM_ENVIROMENTS];
+//Configuraciones
+ALsizei size, freq;
+ALenum format;
+ALvoid * data;
+int ch;
+ALboolean loop;
+std::vector<bool> sourcesPlay = {false, true, true};
 
 // Se definen todos las funciones.
 void reshapeCallback(GLFWwindow *Window, int widthRes, int heightRes);
@@ -773,7 +804,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	/*******************************************
 	 * OpenAL init
 	 *******************************************/
-	/*alutInit(0, nullptr);
+	alutInit(0, nullptr);
 	alListenerfv(AL_POSITION, listenerPos);
 	alListenerfv(AL_VELOCITY, listenerVel);
 	alListenerfv(AL_ORIENTATION, listenerOri);
@@ -805,7 +836,28 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	}
 	else {
 		printf("init - no errors after alGenSources\n");
-	}*/
+	}
+
+	alSourcef(source[0],AL_PITCH, 1.0f);
+	alSourcefv(source[0], AL_POSITION, source0Pos);
+	alSourcefv(source[0], AL_VELOCITY, source0Vel);
+	alSourcei(source[0], AL_BUFFER, buffer[0]);
+	alSourcei(source[0], AL_LOOPING, AL_FALSE);
+	alSourcef(source[0], AL_MAX_DISTANCE, 1000);
+
+	alSourcef(source[1],AL_PITCH, 1.0f);
+	alSourcefv(source[1], AL_POSITION, source1Pos);
+	alSourcefv(source[1], AL_VELOCITY, source1Vel);
+	alSourcei(source[1], AL_BUFFER, buffer[1]);
+	alSourcei(source[1], AL_LOOPING, AL_TRUE);
+	alSourcef(source[1], AL_MAX_DISTANCE, 1000);
+
+	alSourcef(source[2],AL_PITCH, 1.0f);
+	alSourcefv(source[2], AL_POSITION, source2Pos);
+	alSourcefv(source[2], AL_VELOCITY, source2Vel);
+	alSourcei(source[2], AL_BUFFER, buffer[2]);
+	alSourcei(source[2], AL_LOOPING, AL_TRUE);
+	alSourcef(source[2], AL_MAX_DISTANCE, 1000);
 }
 
 void destroy() {
@@ -1162,6 +1214,7 @@ bool processInput(bool continueApplication) {
 		isJump = true;
 		startTimeJump = currTime;
 		tmv = 0;
+		sourcesPlay[0] = true;
 	}
 
 	glfwPollEvents();
@@ -1564,6 +1617,7 @@ void applicationLoop() {
 		tmv = currTime - startTimeJump;
 		if(modelMatrixMayow[3][1] < terrain.getHeightTerrain(modelMatrixMayow[3][0], modelMatrixMayow[3][2])){
 			isJump = false;
+			alSourceStop(source[0]);
 			modelMatrixMayow[3][1] = terrain.getHeightTerrain(modelMatrixMayow[3][0], modelMatrixMayow[3][2]);
 		}
 		glm::mat4 modelMatrixMayowBody = glm::mat4(modelMatrixMayow);
@@ -2112,6 +2166,52 @@ void applicationLoop() {
 		rotHelHelBack += 0.5;
 
 		glfwSwapBuffers(window);
+
+		//OpenAL Sound data
+		source0Pos[0] = modelMatrixFountain[3].x;
+		source0Pos[1] = modelMatrixFountain[3].y;
+		source0Pos[2] = modelMatrixFountain[3].z;
+		alSourcefv(source[0], AL_POSITION, source0Pos);
+
+		source1Pos[0] = modelMatrixGuardian[3].x;
+		source1Pos[1] = modelMatrixGuardian[3].y;
+		source1Pos[2] = modelMatrixGuardian[3].z;
+		alSourcefv(source[1], AL_POSITION, source1Pos);
+
+		source2Pos[0] = modelMatrixDart[3].x;
+		source2Pos[1] = modelMatrixDart[3].y;
+		source2Pos[2] = modelMatrixDart[3].z;
+		alSourcefv(source[2], AL_POSITION, source2Pos);
+		
+		// listenerPos[0] = modelMatrixMayow[3].x;
+		// listenerPos[1] = modelMatrixMayow[3].y;
+		// listenerPos[2] = modelMatrixMayow[3].z;
+		// alListenerfv(AL_POSITION, listenerPos);
+		//Esto es para la cámara FPC
+		listenerPos[0] = camera->getPosition().x;
+		listenerPos[1] = camera->getPosition().y;
+		listenerPos[2] = camera->getPosition().z;
+		alListenerfv(AL_POSITION, listenerPos);
+
+		// glm::vec3 upModel = modelMatrixMayow[1];
+		// glm::vec3 frontModel = modelMatrixMayow[2];
+		//Esto es para la FPC
+		glm::vec3 upModel = camera->getUp();
+		glm::vec3 frontModel = camera->getFront();
+		listenerOri[0] = frontModel.x;
+		listenerOri[1] = frontModel.y;
+		listenerOri[2] = frontModel.z;
+		listenerOri[3] = upModel.x;
+		listenerOri[4] = upModel.y;
+		listenerOri[5] = upModel.z;
+		alListenerfv(AL_ORIENTATION,listenerOri);
+
+		for(unsigned int i = 0; i < sourcesPlay.size(); i++){
+			if(sourcesPlay[i]){
+				alSourcePlay(source[i]);
+				sourcesPlay[i] = false;
+			}
+		}
 	}
 }
 

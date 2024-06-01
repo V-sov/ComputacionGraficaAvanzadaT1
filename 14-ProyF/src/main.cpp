@@ -340,7 +340,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelLampPost2.setShader(&shaderMulLighting);
 
 	// Heroe model
-	heroeModelAnimate.loadModel("../models/Heroe.fbx");
+	heroeModelAnimate.loadModel("../models/heroe/Heroe.fbx");
 	heroeModelAnimate.setShader(&shaderMulLighting);
 
 	// Terreno
