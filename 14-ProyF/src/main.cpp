@@ -95,11 +95,13 @@ Box boxViewDepth;
 
 // Models complex instances
 Model modelRock;
-
+Model modelArc;
 // Lamps
 Model modelLamp1;
 Model modelLamp2;
 Model modelLampPost2;
+//FarosPropios
+Model modelFaro;
 // Modelos animados
 // Main Character
 Model heroeModelAnimate;
@@ -109,7 +111,7 @@ Terrain terrain(-1, -1, 250, 10, "../Textures/heightmap3.png");
 
 ShadowBox * shadowBox;
 
-GLuint textureCespedID, textureWindowID, textureHighwayID, textureLandingPadID;
+GLuint textureCespedID, textureWindowID, textureHighwayID, textureLandingPadID, textureArcID;
 GLuint textureTerrainRID, textureTerrainGID, textureTerrainBID, textureTerrainBlendMapID;
 GLuint skyboxTextureID;
 GLuint textureInit1ID, textureInit2ID, textureActivaID, textureScreenID, textureScreen2ID;   
@@ -147,6 +149,7 @@ int lastMousePosY, offsetY = 0;
 
 // Model matrix definitions
 glm::mat4 matrixModelRock = glm::mat4(1.0);
+glm::mat4 matrixModelArc = glm::mat4(1.0);
 glm::mat4 modelMatrixHeroe = glm::mat4(1.0f);
 
 int animationHeroeIndex = 0;
@@ -175,6 +178,16 @@ std::vector<glm::vec3> lamp2Position = {
 std::vector<float> lamp2Orientation = {
 	21.37 + 90, -65.0 + 90
 };
+
+//Lamps Position
+std::vector<glm::vec3> FaroPosition = {
+	glm::vec3(-7.03, 0, -19.14), 
+	glm::vec3(24.41, 0, -34.57),
+	glm::vec3(-10.15, 0, -54.1),
+};
+std::vector<float> FaroOrientation = {
+	-17.0, -82.67, 23.70
+}; 
 
 double deltaTime;
 double currTime, lastTime;
@@ -331,6 +344,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelRock.loadModel("../models/rock/rock.obj");
 	modelRock.setShader(&shaderMulLighting);
 
+	modelArc.loadModel("../models/Arco/Arco.fbx");
+	modelArc.setShader(&shaderMulLighting);
 	//Lamps models
 	modelLamp1.loadModel("../models/Street-Lamp-Black/objLamp.obj");
 	modelLamp1.setShader(&shaderMulLighting);
@@ -339,6 +354,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelLampPost2.loadModel("../models/Street_Light/LampPost.obj");
 	modelLampPost2.setShader(&shaderMulLighting);
 
+	modelFaro.loadModel("../models/Farol/Faro.fbx");
+	modelFaro.setShader(&shaderMulLighting);
 	// Heroe model
 	heroeModelAnimate.loadModel("../models/heroe/Heroe.fbx");
 	heroeModelAnimate.setShader(&shaderMulLighting);
@@ -500,6 +517,25 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureLandingPad.freeImage(); // Liberamos memoria
 
+	//Arco
+	Texture textureArc("../models/Arco/Arco_CGA.png");
+	textureArc.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureArcID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureArcID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureArc.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureArc.getChannels() == 3 ? GL_RGB : GL_RGBA, textureArc.getWidth(), textureArc.getHeight(), 0,
+		textureArc.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureArc.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureArc.freeImage(); // Liberamos memoria
+	
 	// Defininiendo texturas del mapa de mezclas
 	// Definiendo la textura
 	Texture textureR("../Textures/rocaT.png");
@@ -783,10 +819,12 @@ void destroy() {
 
 	// Custom objects Delete
 	modelRock.destroy();
+	modelArc.destroy();
 	modelLamp1.destroy();
 	modelLamp2.destroy();
 	modelLampPost2.destroy();
 	heroeModelAnimate.destroy();
+	modelFaro.destroy();
 
 	// Terrains objects Delete
 	terrain.destroy();
@@ -794,6 +832,7 @@ void destroy() {
 	// Textures Delete
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDeleteTextures(1, &textureCespedID);
+	glDeleteTextures(1, &textureArcID);
 	glDeleteTextures(1, &textureWindowID);
 	glDeleteTextures(1, &textureHighwayID);
 	glDeleteTextures(1, &textureLandingPadID);
@@ -1028,12 +1067,12 @@ void prepareScene(){
 	terrain.setShader(&shaderTerrain);
 	
 	modelRock.setShader(&shaderMulLighting);
-
+	modelArc.setShader(&shaderMulLighting);
 	//Lamp models
 	modelLamp1.setShader(&shaderMulLighting);
 	modelLamp2.setShader(&shaderMulLighting);
 	modelLampPost2.setShader(&shaderMulLighting);
-
+	modelFaro.setShader(&shaderMulLighting);
 	//Heroe
 	heroeModelAnimate.setShader(&shaderMulLighting);
 
@@ -1044,13 +1083,13 @@ void prepareDepthScene(){
 	terrain.setShader(&shaderDepth);
 	
 	modelRock.setShader(&shaderDepth);
-
+	modelArc.setShader(&shaderMulLighting);
 
 	//Lamp models
 	modelLamp1.setShader(&shaderDepth);
 	modelLamp2.setShader(&shaderDepth);
 	modelLampPost2.setShader(&shaderDepth);
-
+	modelFaro.setShader(&shaderDepth);
 	//Heroe
 	heroeModelAnimate.setShader(&shaderDepth);
 }
@@ -1088,16 +1127,22 @@ void renderSolidScene(){
 	//Rock render
 	matrixModelRock[3][1] = terrain.getHeightTerrain(matrixModelRock[3][0], matrixModelRock[3][2]);
 	modelRock.render(matrixModelRock);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureArcID);
+	shaderMulLighting.setInt("texture1", 0);
+	matrixModelArc[3][1] = terrain.getHeightTerrain(matrixModelArc[3][0], matrixModelArc[3][2]);
+	modelArc.render(matrixModelArc);
 	// Forze to enable the unit texture to 0 always ----------------- IMPORTANT
 	glActiveTexture(GL_TEXTURE0);
 
 	// Render lamp
-	for(int i = 0; i < lamp1Position.size(); i++){
-		lamp1Position[i].y = terrain.getHeightTerrain(lamp1Position[i].x, lamp1Position[i].z);
-		modelLamp1.setPosition(lamp1Position[i]);
-		modelLamp1.setScale(glm::vec3(0.5));
-		modelLamp1.setOrientation(glm::vec3(0, lamp1Orientation[i], 0));
-		//modelLamp1.render();
+	for(int i = 0; i < FaroPosition.size(); i++){
+		FaroPosition[i].y = terrain.getHeightTerrain(FaroPosition[i].x, FaroPosition[i].z);
+		modelFaro.setPosition(FaroPosition[i]);
+		modelFaro.setScale(glm::vec3(1.5));
+		modelFaro.setOrientation(glm::vec3(0, FaroOrientation[i], 0));
+		modelFaro.render();
 	}
 	for(int i = 0; i < lamp2Position.size(); i++){
 		lamp2Position[i].y = terrain.getHeightTerrain(lamp2Position[i].x, lamp2Position[i].z);
@@ -1171,7 +1216,8 @@ void applicationLoop() {
 	int state = 0;
 
 	matrixModelRock = glm::translate(matrixModelRock, glm::vec3(-3.0, 0.0, 2.0));
-
+	matrixModelArc = glm::translate(matrixModelArc, glm::vec3(-3.0, 0.0, 2.0));
+	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -5.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
 
@@ -1312,25 +1358,25 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		/*******************************************
 		 * Propiedades PointLights
 		 *******************************************/
-		shaderMulLighting.setInt("pointLightCount", lamp1Position.size() + lamp2Position.size());
-		shaderTerrain.setInt("pointLightCount", lamp1Position.size() + lamp2Position.size());
-		for(int i = 0; i < lamp1Position.size(); i++){
+		shaderMulLighting.setInt("pointLightCount", FaroPosition.size() + lamp2Position.size());
+		shaderTerrain.setInt("pointLightCount", FaroPosition.size() + lamp2Position.size());
+		for(int i = 0; i < FaroPosition.size(); i++){
 			glm::mat4 matrixAdjustLamp = glm::mat4(1.0);
-			matrixAdjustLamp = glm::translate(matrixAdjustLamp, lamp1Position[i]);
-			matrixAdjustLamp = glm::rotate(matrixAdjustLamp, glm::radians(lamp1Orientation[i]), glm::vec3(0, 1, 0));
-			matrixAdjustLamp = glm::scale(matrixAdjustLamp, glm::vec3(0.5));
-			matrixAdjustLamp = glm::translate(matrixAdjustLamp, glm::vec3(0.0, 10.35, 0));
+			matrixAdjustLamp = glm::translate(matrixAdjustLamp, FaroPosition[i]);
+			matrixAdjustLamp = glm::rotate(matrixAdjustLamp, glm::radians(FaroOrientation[i]), glm::vec3(0, 1, 0));
+			matrixAdjustLamp = glm::scale(matrixAdjustLamp, glm::vec3(0.2));
+			matrixAdjustLamp = glm::translate(matrixAdjustLamp, glm::vec3(0.0, 8.35, 0));
 			glm::vec3 lampPosition = glm::vec3(matrixAdjustLamp[3]);
-			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.16, 0.01)));
-			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.4, 0.32, 0.02)));
-			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.specular", glm::value_ptr(glm::vec3(0.6, 0.58, 0.03)));
+			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.2, 0.7)));
+			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.5, 0.5, 1.0)));
+			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.specular", glm::value_ptr(glm::vec3(0.5, 0.5, 1.0)));
 			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(i) + "].position", glm::value_ptr(lampPosition));
 			shaderMulLighting.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0);
 			shaderMulLighting.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09);
 			shaderMulLighting.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.02);
-			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.16, 0.01)));
-			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.4, 0.32, 0.02)));
-			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.specular", glm::value_ptr(glm::vec3(0.6, 0.58, 0.03)));
+			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.2, 0.7)));
+			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.5, 0.5, 1.0)));
+			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(i) + "].light.specular", glm::value_ptr(glm::vec3(0.5, 0.5, 1.0)));
 			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(i) + "].position", glm::value_ptr(lampPosition));
 			shaderTerrain.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0);
 			shaderTerrain.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09);

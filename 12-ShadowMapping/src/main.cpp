@@ -1817,7 +1817,7 @@ void applicationLoop() {
 		camera->setAngleTarget(angleTarget);
 		camera->updateCamera();
 		
-		glm::mat4 hadowBox->update(screenWidth,screenHeight);
+		glm::mat4 hadowBox->update(screenWidth, screenHeight);
 		glm::vec3 centerBox = shadowBox->getCenter();
 
 		// Projection Light shadow mapping
