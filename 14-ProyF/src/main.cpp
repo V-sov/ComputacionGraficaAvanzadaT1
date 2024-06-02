@@ -96,6 +96,11 @@ Box boxViewDepth;
 // Models complex instances
 Model modelRock;
 Model modelArc;
+Model modelTower;
+Model modelIsle;
+Model modelBasePuente;
+Model modelBordePuente;
+Model modelPicasPuente;
 // Lamps
 Model modelLamp1;
 Model modelLamp2;
@@ -111,7 +116,7 @@ Terrain terrain(-1, -1, 250, 10, "../Textures/heightmap3.png");
 
 ShadowBox * shadowBox;
 
-GLuint textureCespedID, textureWindowID, textureHighwayID, textureLandingPadID, textureArcID;
+GLuint textureCespedID, textureWindowID, textureHighwayID, textureLandingPadID, textureArcID, textureIsleID;
 GLuint textureTerrainRID, textureTerrainGID, textureTerrainBID, textureTerrainBlendMapID;
 GLuint skyboxTextureID;
 GLuint textureInit1ID, textureInit2ID, textureActivaID, textureScreenID, textureScreen2ID;   
@@ -150,6 +155,11 @@ int lastMousePosY, offsetY = 0;
 // Model matrix definitions
 glm::mat4 matrixModelRock = glm::mat4(1.0);
 glm::mat4 matrixModelArc = glm::mat4(1.0);
+glm::mat4 matrixModelTower = glm::mat4(1.0);
+glm::mat4 matrixModelIsle = glm::mat4(1.0);
+glm::mat4 matrixModelBasePuente = glm::mat4(1.0);
+glm::mat4 matrixModelBordePuente = glm::mat4(1.0);
+
 glm::mat4 modelMatrixHeroe = glm::mat4(1.0f);
 
 int animationHeroeIndex = 0;
@@ -346,6 +356,19 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	modelArc.loadModel("../models/Arco/Arco.fbx");
 	modelArc.setShader(&shaderMulLighting);
+
+	modelTower.loadModel("../models/Tower/Torre.fbx");
+	modelTower.setShader(&shaderMulLighting);
+
+	modelBasePuente.loadModel("../models/Puente/BasePuente.fbx");
+	modelBasePuente.setShader(&shaderMulLighting);
+	modelBordePuente.loadModel("../models/Puente/BordePuente.fbx");
+	modelBordePuente.setShader(&shaderMulLighting);
+	modelPicasPuente.loadModel("../models/Puente/PicasPuente.fbx");
+	modelPicasPuente.setShader(&shaderMulLighting);
+
+	modelIsle.loadModel("../models/Isla/Isla.fbx");
+	modelIsle.setShader(&shaderMulLighting);
 	//Lamps models
 	modelLamp1.loadModel("../models/Street-Lamp-Black/objLamp.obj");
 	modelLamp1.setShader(&shaderMulLighting);
@@ -535,7 +558,25 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	else 
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureArc.freeImage(); // Liberamos memoria
-	
+	//Isla
+	Texture textureIsle("../models/Isla/PiedraPasto.png");
+	textureIsle.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureIsleID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureIsleID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureIsle.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureIsle.getChannels() == 3 ? GL_RGB : GL_RGBA, textureIsle.getWidth(), textureIsle.getHeight(), 0,
+		textureIsle.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureIsle.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureIsle.freeImage(); // Liberamos memoria
+
 	// Defininiendo texturas del mapa de mezclas
 	// Definiendo la textura
 	Texture textureR("../Textures/rocaT.png");
@@ -820,6 +861,11 @@ void destroy() {
 	// Custom objects Delete
 	modelRock.destroy();
 	modelArc.destroy();
+	modelTower.destroy();
+	modelBasePuente.destroy();
+	modelBordePuente.destroy();
+	modelPicasPuente.destroy();
+	modelIsle.destroy();
 	modelLamp1.destroy();
 	modelLamp2.destroy();
 	modelLampPost2.destroy();
@@ -833,6 +879,7 @@ void destroy() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDeleteTextures(1, &textureCespedID);
 	glDeleteTextures(1, &textureArcID);
+	glDeleteTextures(1, &textureIsleID);
 	glDeleteTextures(1, &textureWindowID);
 	glDeleteTextures(1, &textureHighwayID);
 	glDeleteTextures(1, &textureLandingPadID);
@@ -1068,6 +1115,11 @@ void prepareScene(){
 	
 	modelRock.setShader(&shaderMulLighting);
 	modelArc.setShader(&shaderMulLighting);
+	modelTower.setShader(&shaderMulLighting);
+	modelBasePuente.setShader(&shaderMulLighting);
+	modelBordePuente.setShader(&shaderMulLighting);
+	modelPicasPuente.setShader(&shaderMulLighting);
+	modelIsle.setShader(&shaderMulLighting);
 	//Lamp models
 	modelLamp1.setShader(&shaderMulLighting);
 	modelLamp2.setShader(&shaderMulLighting);
@@ -1084,7 +1136,11 @@ void prepareDepthScene(){
 	
 	modelRock.setShader(&shaderDepth);
 	modelArc.setShader(&shaderMulLighting);
-
+	modelTower.setShader(&shaderDepth);
+	modelBasePuente.setShader(&shaderDepth);
+	modelBordePuente.setShader(&shaderDepth);
+	modelPicasPuente.setShader(&shaderDepth);
+	modelIsle.setShader(&shaderDepth);
 	//Lamp models
 	modelLamp1.setShader(&shaderDepth);
 	modelLamp2.setShader(&shaderDepth);
@@ -1134,8 +1190,16 @@ void renderSolidScene(){
 	matrixModelArc[3][1] = terrain.getHeightTerrain(matrixModelArc[3][0], matrixModelArc[3][2]);
 	modelArc.render(matrixModelArc);
 	// Forze to enable the unit texture to 0 always ----------------- IMPORTANT
-	glActiveTexture(GL_TEXTURE0);
+	matrixModelTower[3][1] = terrain.getHeightTerrain(matrixModelTower[3][0], matrixModelTower[3][2]);
+	modelTower.render(matrixModelTower);
+	//matrixModelIsle[3][1] = terrain.getHeightTerrain(matrixModelIsle[3][0], matrixModelIsle[3][2]);
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureIsleID);
+	shaderMulLighting.setInt("texture1", 0);
+	modelIsle.render(matrixModelIsle);
+	glActiveTexture(GL_TEXTURE0);
+	
 	// Render lamp
 	for(int i = 0; i < FaroPosition.size(); i++){
 		FaroPosition[i].y = terrain.getHeightTerrain(FaroPosition[i].x, FaroPosition[i].z);
@@ -1156,6 +1220,11 @@ void renderSolidScene(){
 		//modelLampPost2.render();
 	}
 
+	//Render Puente
+	glm::mat4 modelMatrixPuente = glm::mat4(matrixModelBasePuente);
+	modelBasePuente.render(modelMatrixPuente);
+	modelBordePuente.render(modelMatrixPuente);
+	modelPicasPuente.render(modelMatrixPuente);
 	glEnable(GL_CULL_FACE);
 
 	/*****************************************
@@ -1179,6 +1248,7 @@ void renderSolidScene(){
 		heroeModelAnimate.setAnimationIndex(animationHeroeIndex);
 		heroeModelAnimate.render(modelMatrixHeroeBody);
 		//animationHeroeIndex = 0;
+	
 
 	/*******************************************
 	 * Skybox
@@ -1218,7 +1288,21 @@ void applicationLoop() {
 	matrixModelRock = glm::translate(matrixModelRock, glm::vec3(-3.0, 0.0, 2.0));
 	matrixModelArc = glm::translate(matrixModelArc, glm::vec3(-3.0, 0.0, 2.0));
 	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
-	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -5.0f));
+
+	matrixModelTower = glm::scale(matrixModelTower, glm::vec3(9.0, 9.0, 9.0));
+	matrixModelTower = glm::translate(matrixModelTower, glm::vec3(10.0, 0.0, 5.0));
+	matrixModelTower = glm::rotate(matrixModelTower, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+
+	matrixModelBasePuente = glm::scale(matrixModelBasePuente, glm::vec3(6.0, 6.0, 6.0));
+	matrixModelBasePuente = glm::translate(matrixModelBasePuente, glm::vec3(8.0, 1.0, 7.0));
+	matrixModelBasePuente = glm::rotate(matrixModelBasePuente, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+
+	
+
+	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(5.0, 2.0, 5.0));
+	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+	
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -5.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
