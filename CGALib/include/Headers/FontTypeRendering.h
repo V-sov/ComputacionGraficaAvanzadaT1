@@ -59,6 +59,26 @@ class DLL_PUBLIC FontTypeRendering {
 	 * Escala en y de la fuente
 	 */
 	double SCALEY;
+	/**
+	 * Da el tamaño de la fuente
+	*/
+	int tamLetra = 12;
+	/**
+	 * Valor 'r' del color de la fuente
+	*/
+	float colLetrar = 1.0;
+	/**
+	 * Valor 'g' del color de la fuente
+	*/
+	float colLetrag = 1.0;
+	/**
+	 * Valor 'b' del color de la fuente
+	*/
+	float colLetrab = 1.0;
+	/**
+	 * Valor alfa del color de la fuente
+	*/
+	float colLetraalpha = 1.0;
 
 public:
 	/**
@@ -84,6 +104,10 @@ public:
 	 * Destructor de clase.
 	 */
 	virtual ~FontTypeRendering();
+	/**
+	 * Modificador de la fuente
+	*/
+	void modFuente(int tamFuente, float colorFr, float colorFg, float colorFb, float colorFalpha);
 private:
 	void render_text(const std::string &str, FT_Face face, float x, float y,
 			float sx, float sy);

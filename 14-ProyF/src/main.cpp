@@ -51,6 +51,10 @@
 // OpenAL include
 #include <AL/alut.h>
 
+// Sleep
+#include <windows.h>  
+#include <unistd.h>
+
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
 int screenWidth;
@@ -79,8 +83,14 @@ std::shared_ptr<Camera> camera(new ThirdPersonCamera());
 float distanceFromTarget = 15.0;
 
 //Botón de pausa
-bool pause = true;
+bool pause = false;
 bool pauseInicio = true;
+bool resumeAct = false;
+bool keyrelease = true;
+bool menuRelease = true;
+bool ctrlRelease = true;
+bool muerteRelease = true;
+bool controlRelease = true;
 
 Sphere skyboxSphere(20, 20);
 
@@ -119,12 +129,20 @@ ShadowBox * shadowBox;
 GLuint textureCespedID, textureWindowID, textureHighwayID, textureLandingPadID, textureArcID, textureIsleID;
 GLuint textureTerrainRID, textureTerrainGID, textureTerrainBID, textureTerrainBlendMapID;
 GLuint skyboxTextureID;
-GLuint textureInit1ID, textureInit2ID, textureActivaID, textureScreenID, textureScreen2ID;   
+// Textura de inicio y pausa
+GLuint textureStartID, textureResumeID, textureActivaID, textureMenuID, textureScreen2ID, textureControlID, textureKeysID;   
+GLuint textureMuerteID;
 
-bool iniciaPartida = false, presionarOpcion = false;
+//Proyecto
 
-// Modelo para el render del texto
-FontTypeRendering::FontTypeRendering *modelText;
+bool iniciaPartida = false, presionarOpcion = false, uno = false, muerte = false;
+// Modelos para el render del texto
+FontTypeRendering::FontTypeRendering *modelTextMuerte;
+FontTypeRendering::FontTypeRendering *modelTextRegresoInicio;
+FontTypeRendering::FontTypeRendering *modelTextInicioPartida;
+FontTypeRendering::FontTypeRendering *modelTextResume;
+FontTypeRendering::FontTypeRendering *modelTextControles;
+
 
 /*EMPIEZAN LAS DEFINICIONES DE LOS ARCHIVOS DE TEXTURA DEL SKY BOX*/
 GLenum types[6] = {
@@ -134,13 +152,7 @@ GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
 GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
 GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
 GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
-//Prueba skybox 1
-/*std::string fileNames[6] = { "../Textures/mp_proyf/corona_ft.png",
-		"../Textures/mp_proyf/corona_bk.png",
-		"../Textures/mp_proyf/corona_up.png",
-		"../Textures/mp_proyf/corona_dn.png",
-		"../Textures/mp_proyf/corona_rt.png",
-		"../Textures/mp_proyf/corona_lf.png" };*/
+
 //Prueba skybox 2
 std::string fileNames[6] = { "../Textures/mp_proyf/redeclipse_ft.png",
 		"../Textures/mp_proyf/redeclipse_bk.png",
@@ -259,6 +271,14 @@ void destroy();
 bool processInput(bool continueApplication = true);
 
 // Implementacion de todas las funciones.
+
+//Implementación para el botón la muerte
+void accionMuerte(){
+	textureActivaID = textureStartID;
+	iniciaPartida = false;
+	muerte = false;
+}
+
 void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	if (!glfwInit()) {
@@ -391,9 +411,17 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	camera->setDistanceFromTarget(distanceFromTarget);
 	camera->setSensitivity(1.0);
 	
-// Se inicializa el model de render text
-	modelText = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
-	modelText->Initialize();
+// Se inicializa los modelos de render text
+	modelTextMuerte = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
+	modelTextMuerte->Initialize();
+	modelTextRegresoInicio = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
+	modelTextRegresoInicio->Initialize();
+	modelTextInicioPartida = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
+	modelTextInicioPartida->Initialize();
+	modelTextResume = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
+	modelTextResume->Initialize();
+ 	modelTextControles = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
+	modelTextControles->Initialize();
 
 	camera->setPosition(glm::vec3(20.0, 3.0, 9.0));
 	camera->setDistanceFromTarget(distanceFromTarget);
@@ -653,12 +681,11 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	else 
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureBlendMap.freeImage(); // Liberamos memoria
-
-	// Definiendo la textura
+// Definiendo la textura
 	Texture textureIntro1("../Textures/Intro1Cerbero.png");
 	textureIntro1.loadImage(); // Cargar la textura
-	glGenTextures(1, &textureInit1ID); // Creando el id de la textura del landingpad
-	glBindTexture(GL_TEXTURE_2D, textureInit1ID); // Se enlaza la textura
+	glGenTextures(1, &textureStartID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureStartID); // Se enlaza la textura
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
@@ -676,8 +703,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	// Definiendo la textura
 	Texture textureIntro2("../Textures/Intro2Cerbero.png");
 	textureIntro2.loadImage(); // Cargar la textura
-	glGenTextures(1, &textureInit2ID); // Creando el id de la textura del landingpad
-	glBindTexture(GL_TEXTURE_2D, textureInit2ID); // Se enlaza la textura
+	glGenTextures(1, &textureResumeID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureResumeID); // Se enlaza la textura
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
@@ -693,23 +720,23 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	textureIntro2.freeImage(); // Liberamos memoria
 
 	// Definiendo la textura
-	Texture textureScreen("../Textures/Screen.png");
-	textureScreen.loadImage(); // Cargar la textura
-	glGenTextures(1, &textureScreenID); // Creando el id de la textura del landingpad
-	glBindTexture(GL_TEXTURE_2D, textureScreenID); // Se enlaza la textura
+	Texture textureMenu("../Textures/Intro1Cerbero.png");
+	textureMenu.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureMenuID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureMenuID); // Se enlaza la textura
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
-	if(textureScreen.getData()){
+	if(textureMenu.getData()){
 		// Transferir los datos de la imagen a la tarjeta
-		glTexImage2D(GL_TEXTURE_2D, 0, textureScreen.getChannels() == 3 ? GL_RGB : GL_RGBA, textureScreen.getWidth(), textureScreen.getHeight(), 0,
-		textureScreen.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureScreen.getData());
+		glTexImage2D(GL_TEXTURE_2D, 0, textureMenu.getChannels() == 3 ? GL_RGB : GL_RGBA, textureMenu.getWidth(), textureMenu.getHeight(), 0,
+		textureMenu.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureMenu.getData());
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else 
 		std::cout << "Fallo la carga de textura" << std::endl;
-	textureScreen.freeImage(); // Liberamos memoria
+	textureMenu.freeImage(); // Liberamos memoria
 
 	// Definiendo la textura
 	Texture textureScreen2("../Textures/Screen2.png");
@@ -730,7 +757,63 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureScreen2.freeImage(); // Liberamos memoria
 
-	
+	// Definiendo la textura Muerte
+	Texture textureMuerte("../Textures/Skull.png");
+	textureMuerte.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureMuerteID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureMuerteID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureMuerte.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureMuerte.getChannels() == 3 ? GL_RGB : GL_RGBA, textureMuerte.getWidth(), textureMuerte.getHeight(), 0,
+		textureMuerte.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureMuerte.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureMuerte.freeImage(); // Liberamos memoria
+
+	// Definiendo la textura 
+	Texture textureControles("../Textures/agua.png");
+	textureControles.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureControlID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureControlID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureControles.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureControles.getChannels() == 3 ? GL_RGB : GL_RGBA, textureControles.getWidth(), textureControles.getHeight(), 0,
+		textureControles.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureControles.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureControles.freeImage(); // Liberamos memoria
+
+	// Definiendo la textura textureKeysID
+	Texture textureKeys("../Textures/KeyControls.png");
+	textureKeys.loadImage(); // Cargar la textura
+	glGenTextures(1, &textureKeysID); // Creando el id de la textura del landingpad
+	glBindTexture(GL_TEXTURE_2D, textureKeysID); // Se enlaza la textura
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // Wrapping en el eje u
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Wrapping en el eje v
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Filtering de minimización
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtering de maximimizacion
+	if(textureKeys.getData()){
+		// Transferir los datos de la imagen a la tarjeta
+		glTexImage2D(GL_TEXTURE_2D, 0, textureKeys.getChannels() == 3 ? GL_RGB : GL_RGBA, textureKeys.getWidth(), textureKeys.getHeight(), 0,
+		textureKeys.getChannels() == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, textureKeys.getData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else 
+		std::cout << "Fallo la carga de textura" << std::endl;
+	textureKeys.freeImage(); // Liberamos memoria
+
 	// Definiendo la textura
 	/*Texture textureParticlesFountain("../Textures/bluewater.png");
 	textureParticlesFountain.loadImage(); // Cargar la textura
@@ -887,10 +970,14 @@ void destroy() {
 	glDeleteTextures(1, &textureTerrainGID);
 	glDeleteTextures(1, &textureTerrainRID);
 	glDeleteTextures(1, &textureTerrainBlendMapID);
-	glDeleteTextures(1, &textureInit1ID);
-	glDeleteTextures(1, &textureInit2ID);
-	glDeleteTextures(1, &textureScreenID);
+	glDeleteTextures(1, &textureStartID);
+	glDeleteTextures(1, &textureResumeID);
+	glDeleteTextures(1, &textureMenuID);
 	glDeleteTextures(1, &textureScreen2ID);
+	glDeleteTextures(1, &textureMuerteID);
+	glDeleteTextures(1, &textureMenuID);
+	glDeleteTextures(1, &textureControlID); 
+	glDeleteTextures(1, &textureKeysID);
 
 
 	// Cube Maps Delete
@@ -956,32 +1043,117 @@ bool processInput(bool continueApplication) {
 	
 	if(!iniciaPartida){
 		bool presionarEnter = glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS;
-		if(textureActivaID == textureInit1ID && presionarEnter){
+		int p3 =glfwGetKey(window, GLFW_KEY_ENTER);
+		if(textureActivaID == textureScreen2ID || textureActivaID == textureMuerteID){
+			ctrlRelease = false;
+		}else {
+			ctrlRelease = true;
+		}
+		if(textureActivaID == textureStartID && presionarEnter && muerteRelease 
+			&& controlRelease && keyrelease && menuRelease){
 			iniciaPartida = true;
 			pause = false;
 			pauseInicio = false;
+			muerte = false;
+			textureActivaID = textureScreen2ID;		
+		}else if(textureActivaID == textureResumeID && presionarEnter){
+			iniciaPartida = true;
+			pause = false;
+			pauseInicio = false;
+			muerte = false;
 			textureActivaID = textureScreen2ID;
+		}
+		else if (textureActivaID == textureControlID && presionarEnter){
+			controlRelease = false;
+			textureActivaID = textureKeysID;		
+		}
+		else if(textureActivaID == textureKeysID && presionarEnter && controlRelease){
+
+			keyrelease = false;
+			textureActivaID = textureStartID;		
 		}
 		else if(!presionarOpcion && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS){
 			presionarOpcion = true;
-			if(textureActivaID == textureInit1ID && pauseInicio)
-				textureActivaID = textureInit1ID;
-			else if(textureActivaID == textureInit1ID && !pauseInicio)
-				textureActivaID = textureInit2ID;
-			else if(textureActivaID == textureInit2ID)
-				textureActivaID = textureInit1ID;
+			glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
+			//if((textureActivaID == textureStartID && pauseInicio) || (textureActivaID == textureStartID && muerte))
+				//textureActivaID = textureStartID;
+			if(textureActivaID == textureStartID && !muerte && ctrlRelease){
+				textureActivaID = textureControlID;
+			}
+			else if(textureActivaID == textureControlID && ctrlRelease){
+				textureActivaID = textureStartID;
+			}
+			else if(textureActivaID == textureMenuID && !pauseInicio && ctrlRelease)
+				textureActivaID = textureResumeID;			
+			else if(textureActivaID == textureResumeID && ctrlRelease){
+					textureActivaID = textureMenuID;
+			}
+			else if(textureActivaID = textureMuerteID && muerte && ctrlRelease)
+				textureActivaID = textureMuerteID;
+			else if(textureActivaID = textureKeysID && ctrlRelease){
+				textureActivaID = textureKeysID;
+			}
+			else{
+				textureActivaID = textureActivaID;
+
+			}
+
 		}
 		else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
 			presionarOpcion = false;
+		if(textureActivaID == textureMenuID && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
+			textureActivaID = textureStartID;
+			menuRelease = false;
+			iniciaPartida = false;
+			pauseInicio = true;
+		}
 	}
-	else if(iniciaPartida && continueApplication == false){
-		iniciaPartida = false;
-		presionarOpcion = true;
-		textureActivaID = textureInit2ID;
-		pause = true;
-		return iniciaPartida;
+	else if(muerte == true && iniciaPartida == true ){
+			if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
+				iniciaPartida = false;
+				muerteRelease = false;
+				textureActivaID = textureMenuID;
+				accionMuerte();
+			}
 	}
-	if(pause==false){
+	// Pantalla STOP
+		if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
+			if((!pause && !pauseInicio )){
+				if(!muerte){
+					pause = true;
+					textureActivaID = textureResumeID;
+					iniciaPartida = false;	
+				}
+						
+			}else 
+				if(muerte || pause || pauseInicio )
+					textureActivaID = textureActivaID;
+			
+		}
+	if(enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS){
+		if (iniciaPartida){
+			muerte = true;
+			iniciaPartida = true;
+			textureActivaID = textureMuerteID;
+		}
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE){
+			if(!controlRelease){
+				controlRelease = true;
+			}else if(!keyrelease){
+				keyrelease = true;
+			}else if(!menuRelease){
+				menuRelease = true;
+			}else if(!muerteRelease){
+				muerteRelease = true;
+			}
+		}
+	if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE){
+		ctrlRelease = true;
+	}
+	std::cout << textureActivaID << std::endl;
+	if(pause==false && iniciaPartida && !muerte){
 		if (glfwJoystickPresent(GLFW_JOYSTICK_1) == GL_TRUE) {
 			std::cout << "Esta presente el joystick" << std::endl;
 			int axesCount, buttonCount;
@@ -1307,7 +1479,7 @@ void applicationLoop() {
 
 	lastTime = TimeManager::Instance().GetTime();
 
-	textureActivaID = textureInit1ID;
+	textureActivaID = textureStartID;
 
 	glm::vec3 lightPos = glm::vec3(10.0, 10.0, -10.0);
 
@@ -1490,13 +1662,32 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		}
 
 		/************Render de imagen de frente**************/
-		if(!iniciaPartida){
+		if(!iniciaPartida || resumeAct){
+			resumeAct = false;
 			shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
 			shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, textureActivaID);
 			shaderTexture.setInt("outTexture", 0);
 			boxIntro.render();
+			if(textureActivaID==textureMenuID && pause){
+				/************Render de imagen de frente Texto Menú**************/
+				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
+				modelTextInicioPartida->render("MENU",-0.3,0);
+			}else if(textureActivaID==textureStartID){
+				/************Render de imagen de frente Texto Inicio**************/
+				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
+				modelTextInicioPartida->render("START",-0.3,0);
+			}else if(textureActivaID == textureControlID){
+				/************Render de imagen de frente Texto Controles**************/
+				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
+				modelTextInicioPartida->render("CONTROLS",-0.3,0);
+			}
+			if(textureActivaID==textureResumeID){
+				/************Render de imagen de frente Texto Resume**************/
+				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
+				modelTextInicioPartida->render("RESUME",-0.3,0);
+			}
 			glfwSwapBuffers(window);
 			continue;
 		}
@@ -1604,7 +1795,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 
 		animationHeroeIndex = 0;
 
-		/************Render de imagen de frente Texto**************/
+	/************Render de imagen de frente Texto Muerte**************/
 		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
 		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
 		glActiveTexture(GL_TEXTURE0);
@@ -1613,7 +1804,10 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		glEnable(GL_BLEND);
 		boxIntro.render();
 		glDisable(GL_BLEND);
-		modelText->render("Hello ma' bro", -1, 0);
+		if(textureActivaID == textureMuerteID){
+			modelTextMuerte->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
+			modelTextMuerte->render("GAME OVER",-0.5,0);
+		}
 
 		/*********************Prueba de colisiones****************************/
 		for (std::map<std::string,

@@ -72,8 +72,10 @@ void FontTypeRendering::Initialize() {
 		return exit(-1);
 	}
 	// Se le indica a dicha cara el archivo ttf que se utilizar�.
-	if (FT_New_Face(ft_lib, "../Fonts/arial.ttf", 0, &face) != 0) {
-		std::cerr << "Unable to load arial.ttf\n";
+	if (FT_New_Face(ft_lib, "../Fonts/achilles3bold.ttf", 0, &face) != 0) {
+	//if (FT_New_Face(ft_lib, "../Fonts/arial.ttf", 0, &face) != 0) {
+		std::cerr << "Unable to load achilles3bold.ttf\n";
+		//std::cerr << "Unable to load arial.ttf\n";
 		cleanup();
 		return exit(-1);
 	}
@@ -125,11 +127,12 @@ void FontTypeRendering::render(const std::string &str, float x, float y) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glUseProgram (program);
 	// Se envia el color de la fuente.
-	glUniform4f(colorUniform, 0.5, 1.0, 1.0, 1.0);
+	glUniform4f(colorUniform, colLetrar, colLetrag, colLetrab, colLetraalpha);
+	//glUniform4f(colorUniform, 0.5, 1.0, 1.0, 1.0);
 	// Se envia la textura a utilizar.
 	glUniform1i(texUniform, 0);
 	// Se coloca el tama�o en Pixeles de la fuente.
-	FT_Set_Pixel_Sizes(face, 0, 12);
+	FT_Set_Pixel_Sizes(face, 0, tamLetra);
 	// Renderiza la fuente.
 	glEnable(GL_BLEND);
 	render_text(str, face, x, y, SCALEX, SCALEY);
@@ -137,6 +140,25 @@ void FontTypeRendering::render(const std::string &str, float x, float y) {
 	glBindSampler(0, 0);
 	glDisable(GL_BLEND);
 }
+
+/**
+ * Método que se encarga de personalizar la fuente 
+ * en tamaño y color
+ * @param tamFuente Tamaño de la fuente
+ * @param colorFr Valor r de la fuente
+ * @param colorFg Valor g de la fuente
+ * @param colorFb Valor b de la fuente
+ * @param colorFalpha Valor alpha de la fuente, transparencias
+*/
+void FontTypeRendering::modFuente(int tamFuente, float colorFr, 
+	float colorFg, float colorFb, float colorFalpha){
+	FontTypeRendering::tamLetra = tamFuente;
+	FontTypeRendering::colLetrar = colorFr;
+	FontTypeRendering::colLetrag = colorFg;
+	FontTypeRendering::colLetrab = colorFb;
+	FontTypeRendering::colLetraalpha = colorFalpha;
+}
+
 
 /**
  * M�todo que se encarga de renderizar la textura.
