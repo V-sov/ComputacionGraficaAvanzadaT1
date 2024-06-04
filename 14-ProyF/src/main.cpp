@@ -85,12 +85,24 @@ float distanceFromTarget = 15.0;
 //Botón de pausa
 bool pause = false;
 bool pauseInicio = true;
+//Activación de pantallas
 bool resumeAct = false;
 bool keyrelease = true;
 bool menuRelease = true;
 bool ctrlRelease = true;
 bool muerteRelease = true;
 bool controlRelease = true;
+bool checkRelease = true;
+
+//Valores para checkpoint
+// Pos. Arcos
+float arco1x = -3.0;
+float arco1y = 0.0;
+float arco1z = 2.0;
+// Vidas
+int vida = 2;
+int warco = 0;
+bool chec = false;
 
 Sphere skyboxSphere(20, 20);
 
@@ -274,6 +286,7 @@ bool processInput(bool continueApplication = true);
 
 //Implementación para el botón la muerte
 void accionMuerte(){
+	//textureActivaID = textureStartID;
 	textureActivaID = textureStartID;
 	iniciaPartida = false;
 	muerte = false;
@@ -1056,6 +1069,7 @@ bool processInput(bool continueApplication) {
 			pauseInicio = false;
 			muerte = false;
 			textureActivaID = textureScreen2ID;		
+			vida = 2;
 		}else if(textureActivaID == textureResumeID && presionarEnter){
 			iniciaPartida = true;
 			pause = false;
@@ -1132,10 +1146,17 @@ bool processInput(bool continueApplication) {
 		}
 	if(enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS){
 		if (iniciaPartida){
-			muerte = true;
-			iniciaPartida = true;
-			textureActivaID = textureMuerteID;
+			if(vida == 0){
+				muerte = true;
+				textureActivaID = textureMuerteID;
+			}else{
+				chec = true;
+			}
+			checkRelease = false;
 		}
+	}
+	if(enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE){
+		checkRelease = true;
 	}
 
 	if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE){
@@ -1152,7 +1173,6 @@ bool processInput(bool continueApplication) {
 	if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE){
 		ctrlRelease = true;
 	}
-	std::cout << textureActivaID << std::endl;
 	if(pause==false && iniciaPartida && !muerte){
 		if (glfwJoystickPresent(GLFW_JOYSTICK_1) == GL_TRUE) {
 			std::cout << "Esta presente el joystick" << std::endl;
@@ -1457,8 +1477,8 @@ void applicationLoop() {
 
 	int state = 0;
 
-	matrixModelRock = glm::translate(matrixModelRock, glm::vec3(-3.0, 0.0, 2.0));
-	matrixModelArc = glm::translate(matrixModelArc, glm::vec3(-3.0, 0.0, 2.0));
+	matrixModelRock = glm::translate(matrixModelRock, glm::vec3(arco1x, arco1y, arco1z));
+	matrixModelArc = glm::translate(matrixModelArc, glm::vec3(arco1x, arco1y, arco1z));
 	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
 
 	matrixModelTower = glm::scale(matrixModelTower, glm::vec3(9.0, 9.0, 9.0));
@@ -1692,6 +1712,26 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			continue;
 		}
 
+		/**
+		 * CHECK POINTS LOGIC
+		*/
+		if(vida > 0 && chec && checkRelease){
+			if(warco == 0 ){
+				std::cout << "x y z = " << arco1x  << " " << arco1y << " "  << arco1z << std::endl;
+				modelMatrixHeroe = glm::mat4(1);
+				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(arco1x+13, arco1y, arco1z));
+				modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
+				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, 0));
+				vida = vida-1;
+				chec = false;
+			}
+		}else if(vida == 0 && muerte && checkRelease){
+			modelMatrixHeroe = glm::mat4(1);
+ 			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -5.0f));
+			modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
+			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, 0));
+		}
+		
 		/*******************************************
 		 * 1.- We render the depth buffer
 		 *******************************************/
@@ -1780,7 +1820,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			matrixCollider = glm::scale(matrixCollider, std::get<0>(it->second).e * 2.0f);
 			boxCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
 			boxCollider.enableWireMode();
-			//boxCollider.render(matrixCollider);
+			boxCollider.render(matrixCollider);
 		}
 
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator it =
