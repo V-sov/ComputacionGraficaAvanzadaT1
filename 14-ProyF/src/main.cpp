@@ -1,4 +1,6 @@
 #define _USE_MATH_DEFINES
+#define TRIANGLE_BUTTON 3
+#define CIRCLE_BUTTON 1
 #include <cmath>
 //glew include
 #include <GL/glew.h>
@@ -1055,7 +1057,10 @@ bool processInput(bool continueApplication) {
 	}
 	
 	if(!iniciaPartida){
-		bool presionarEnter = glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS;
+		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+
+		bool presionarEnter = (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) || 
+                      (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS);
 		int p3 =glfwGetKey(window, GLFW_KEY_ENTER);
 		if(textureActivaID == textureScreen2ID || textureActivaID == textureMuerteID){
 			ctrlRelease = false;
@@ -1131,19 +1136,21 @@ bool processInput(bool continueApplication) {
 			}
 	}
 	// Pantalla STOP
-		if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
-			if((!pause && !pauseInicio )){
-				if(!muerte){
-					pause = true;
-					textureActivaID = textureResumeID;
-					iniciaPartida = false;	
-				}
-						
-			}else 
-				if(muerte || pause || pauseInicio )
-					textureActivaID = textureActivaID;
-			
+	int buttonCount; 
+
+	if (enableCountSelected && (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS || 
+		(glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount)[TRIANGLE_BUTTON] == GLFW_PRESS))) {
+		if (!pause && !pauseInicio) {
+			if (!muerte) {
+				pause = true;
+				textureActivaID = textureResumeID;
+				iniciaPartida = false;
+			}
+		} else if (muerte || pause || pauseInicio) {
+			textureActivaID = textureActivaID;
 		}
+	}
+
 	if(enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS){
 		if (iniciaPartida){
 			if(vida == 0){
