@@ -1423,6 +1423,11 @@ void renderSolidScene(){
 	modelBasePuente.render(modelMatrixPuente);
 	modelBordePuente.render(modelMatrixPuente);
 	modelPicasPuente.render(modelMatrixPuente);
+
+	glm::mat4 modelMatrixPuente2 = glm::mat4(matrixModelBordePuente);
+	modelBasePuente.render(modelMatrixPuente2);
+	modelBordePuente.render(modelMatrixPuente2);
+	modelPicasPuente.render(modelMatrixPuente2);
 	glEnable(GL_CULL_FACE);
 
 	/*****************************************
@@ -1495,7 +1500,9 @@ void applicationLoop() {
 	matrixModelBasePuente = glm::translate(matrixModelBasePuente, glm::vec3(8.0, 1.0, 7.0));
 	matrixModelBasePuente = glm::rotate(matrixModelBasePuente, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
-	
+	matrixModelBordePuente = glm::scale(matrixModelBordePuente, glm::vec3(6.0, 6.0, 6.0));
+	matrixModelBordePuente = glm::translate(matrixModelBordePuente, glm::vec3(8.0, 2.0, 7.0));
+	matrixModelBordePuente = glm::rotate(matrixModelBordePuente, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
 	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(5.0, 2.0, 5.0));
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
