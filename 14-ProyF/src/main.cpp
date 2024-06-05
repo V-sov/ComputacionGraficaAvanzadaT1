@@ -1194,10 +1194,10 @@ bool processInput(bool continueApplication) {
 
 			if(fabs(axes[1]) > 0.2){
 				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, -axes[1] * 0.1));
-				animationHeroeIndex = 0;
+				animationHeroeIndex = 2;
 			}if(fabs(axes[0]) > 0.2){
 				modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-axes[0] * 0.5f), glm::vec3(0, 1, 0));
-				animationHeroeIndex = 0;
+				animationHeroeIndex = 2;
 			}
 
 			if(fabs(axes[2]) > 0.2){
