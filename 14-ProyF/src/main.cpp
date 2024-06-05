@@ -61,6 +61,7 @@
 
 int screenWidth;
 int screenHeight;
+int buttonCount;
 
 const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
@@ -1136,8 +1137,6 @@ bool processInput(bool continueApplication) {
 			}
 	}
 	// Pantalla STOP
-	int buttonCount; 
-
 	if (enableCountSelected && (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS || 
 		(glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount)[TRIANGLE_BUTTON] == GLFW_PRESS))) {
 		if (!pause && !pauseInicio) {
