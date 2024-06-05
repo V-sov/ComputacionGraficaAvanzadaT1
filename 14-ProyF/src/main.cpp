@@ -814,7 +814,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	textureMuerte.freeImage(); // Liberamos memoria
 
 	// Definiendo la textura 
-	Texture textureControles("../Textures/agua.png");
+	Texture textureControles("../Textures/ControlesSF.png");
 	textureControles.loadImage(); // Cargar la textura
 	glGenTextures(1, &textureControlID); // Creando el id de la textura del landingpad
 	glBindTexture(GL_TEXTURE_2D, textureControlID); // Se enlaza la textura
@@ -1733,17 +1733,17 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				modelTextInicioPartida->render("MENU",-0.950,-0.15);
 			}else if(textureActivaID==textureStartID){
 				/************Render de imagen de frente Texto Inicio**************/
-				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
-				modelTextInicioPartida->render("START",-0.3,0);
+				modelTextInicioPartida->modFuente(130, 0.910f, 0.910520f, 0.9261580f, 1.0f);
+				modelTextInicioPartida->render("START",-0.48,-0.550);
 			}else if(textureActivaID == textureControlID){
 				/************Render de imagen de frente Texto Controles**************/
-				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
-				modelTextInicioPartida->render("CONTROLS",-0.3,0);
+				modelTextInicioPartida->modFuente(100, 0.01714280f, 0.03402590f, 0.10f, 1.0f);
+				modelTextInicioPartida->render("CONTROLS",-0.6,-0.80);
 			}
 			if(textureActivaID==textureResumeID){
 				/************Render de imagen de frente Texto Resume**************/
-				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
-				modelTextInicioPartida->render("RESUME",-0.3,0);
+				modelTextInicioPartida->modFuente(130, 0.910f, 0.910520f, 0.9261580f, 0.60f);
+				modelTextInicioPartida->render("RESUME",-0.58,-0.550);
 			}
 			glfwSwapBuffers(window);
 			continue;
@@ -1882,8 +1882,8 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		boxIntro.render();
 		glDisable(GL_BLEND);
 		if(textureActivaID == textureMuerteID){
-			modelTextMuerte->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
-			modelTextMuerte->render("GAME OVER",-0.5,0);
+			modelTextMuerte->modFuente(120, 0.850f, 0.850f, 0.850f, 1.0f);
+			modelTextMuerte->render("GAME OVER",-0.78,0.0);
 		}
 
 		/*********************Prueba de colisiones****************************/
