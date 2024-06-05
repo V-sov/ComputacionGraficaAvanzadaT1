@@ -226,6 +226,27 @@ std::vector<float> FaroOrientation = {
 	-17.0, -82.67, 23.70
 }; 
 
+std::vector<glm::vec3> PuentePosition = {
+	glm::vec3(0.0, 0.0, 0.0), 
+	glm::vec3(0.0, 1.95, 0.0),
+	glm::vec3(0.0, 3.9, 0.0),
+
+	glm::vec3(0.0, 7.8, 0.0), 
+	
+	glm::vec3(0.0, 11.7, 0.0),
+	glm::vec3(0.0, 13.65, 0.0),
+
+	glm::vec3(0.0, 17.55, 0.0), 
+	glm::vec3(0.0, 19.5, 0.0),
+	glm::vec3(0.0, 21.45, 0.0),
+
+	glm::vec3(0.0, 25.35, 0.5), 
+	glm::vec3(0.0, 27.3, 0.5),
+	glm::vec3(0.0, 29.25, 0.5),
+	glm::vec3(0.0, 31.2, 0.5),
+	
+};
+
 double deltaTime;
 double currTime, lastTime;
 
@@ -1419,15 +1440,18 @@ void renderSolidScene(){
 	}
 
 	//Render Puente
-	glm::mat4 modelMatrixPuente = glm::mat4(matrixModelBasePuente);
-	modelBasePuente.render(modelMatrixPuente);
-	modelBordePuente.render(modelMatrixPuente);
-	modelPicasPuente.render(modelMatrixPuente);
-
-	glm::mat4 modelMatrixPuente2 = glm::mat4(matrixModelBordePuente);
+	for(int i = 0; i < PuentePosition.size(); i++){
+		glm::mat4 modelMatrixPuente = glm::mat4(matrixModelBasePuente);
+		modelMatrixPuente = glm::translate(modelMatrixPuente, PuentePosition[i]);
+		modelBasePuente.render(modelMatrixPuente);
+		modelBordePuente.render(modelMatrixPuente);
+		modelPicasPuente.render(modelMatrixPuente);
+	}
+	
+	/*glm::mat4 modelMatrixPuente2 = glm::mat4(matrixModelBordePuente);
 	modelBasePuente.render(modelMatrixPuente2);
 	modelBordePuente.render(modelMatrixPuente2);
-	modelPicasPuente.render(modelMatrixPuente2);
+	modelPicasPuente.render(modelMatrixPuente2);*/
 	glEnable(GL_CULL_FACE);
 
 	/*****************************************
@@ -1493,7 +1517,7 @@ void applicationLoop() {
 	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
 
 	matrixModelTower = glm::scale(matrixModelTower, glm::vec3(9.0, 9.0, 9.0));
-	matrixModelTower = glm::translate(matrixModelTower, glm::vec3(10.0, 0.0, 5.0));
+	matrixModelTower = glm::translate(matrixModelTower, glm::vec3(5.0, 0.0, -23.0));
 	matrixModelTower = glm::rotate(matrixModelTower, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
 	matrixModelBasePuente = glm::scale(matrixModelBasePuente, glm::vec3(6.0, 6.0, 6.0));
