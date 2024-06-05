@@ -733,7 +733,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	textureIntro2.freeImage(); // Liberamos memoria
 
 	// Definiendo la textura
-	Texture textureMenu("../Textures/Intro1Cerbero.png");
+	Texture textureMenu("../Textures/Menu.png");
 	textureMenu.loadImage(); // Cargar la textura
 	glGenTextures(1, &textureMenuID); // Creando el id de la textura del landingpad
 	glBindTexture(GL_TEXTURE_2D, textureMenuID); // Se enlaza la textura
@@ -1178,13 +1178,13 @@ bool processInput(bool continueApplication) {
 			std::cout << "Esta presente el joystick" << std::endl;
 			int axesCount, buttonCount;
 			const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
-			std::cout << "Número de ejes disponibles :=>" << axesCount << std::endl;
-			std::cout << "Left Stick X axis: " << axes[0] << std::endl;
-			std::cout << "Left Stick Y axis: " << axes[1] << std::endl;
-			std::cout << "Left Trigger/L2: " << axes[2] << std::endl;
-			std::cout << "Right Stick X axis: " << axes[3] << std::endl;
-			std::cout << "Right Stick Y axis: " << axes[4] << std::endl;
-			std::cout << "Right Trigger/R2: " << axes[5] << std::endl;
+			//std::cout << "Número de ejes disponibles :=>" << axesCount << std::endl;
+			//std::cout << "Left Stick X axis: " << axes[0] << std::endl; //si
+			//std::cout << "Left Stick Y axis: " << axes[1] << std::endl; //si
+			std::cout << "Right Stick X axis: " << axes[2] << std::endl;
+			std::cout << "Right Stick Y axis: " << axes[3] << std::endl; //8 -> X  //10 der, arrib //11 izq, abaj
+			//std::cout << "Right Stick Y axis: " << " "<< axes[3] << std::endl; //9 -> L y R
+			//std::cout << "Right Trigger/R2: " << axes[5] << std::endl;
 
 			if(fabs(axes[1]) > 0.2){
 				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, -axes[1] * 0.1));
@@ -1194,14 +1194,14 @@ bool processInput(bool continueApplication) {
 				animationHeroeIndex = 0;
 			}
 
-			if(fabs(axes[3]) > 0.2){
-				camera->mouseMoveCamera(axes[3], 0.0, deltaTime);
-			}if(fabs(axes[4]) > 0.2){
-				camera->mouseMoveCamera(0.0, axes[4], deltaTime);
+			if(fabs(axes[2]) > 0.2){
+				camera->mouseMoveCamera(-axes[2], 0.0, deltaTime);
+			}if(fabs(axes[3]) > 0.2){
+				camera->mouseMoveCamera(0.0, -axes[3], deltaTime);
 			}
 
 			const unsigned char * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-			std::cout << "Número de botones disponibles :=>" << buttonCount << std::endl;
+			//std::cout << "Número de botones disponibles :=>" << buttonCount << std::endl;
 			if(buttons[0] == GLFW_PRESS)
 				std::cout << "Se presiona x" << std::endl;
 
@@ -1692,8 +1692,8 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			boxIntro.render();
 			if(textureActivaID==textureMenuID && pause){
 				/************Render de imagen de frente Texto Menú**************/
-				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
-				modelTextInicioPartida->render("MENU",-0.3,0);
+				modelTextInicioPartida->modFuente(65, 0.10f, 0.10f, 0.150f, 1.0f);
+				modelTextInicioPartida->render("MENU",-0.950,-0.15);
 			}else if(textureActivaID==textureStartID){
 				/************Render de imagen de frente Texto Inicio**************/
 				modelTextInicioPartida->modFuente(82, 1.0f, 0.90f, 0.90f, 1.0f);
