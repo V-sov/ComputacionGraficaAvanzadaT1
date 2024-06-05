@@ -816,13 +816,9 @@ bool processInput(bool continueApplication) {
 		std::cout << "Esta presente el joystick" << std::endl;
 		int axesCount, buttonCount;
 		const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
-		std::cout << "Número de ejes disponibles :=>" << axesCount << std::endl;
-		std::cout << "Left Stick X axis: " << axes[0] << std::endl;
-		std::cout << "Left Stick Y axis: " << axes[1] << std::endl;
-		std::cout << "Left Trigger/L2: " << axes[2] << std::endl;
-		std::cout << "Right Stick X axis: " << axes[3] << std::endl;
-		std::cout << "Right Stick Y axis: " << axes[4] << std::endl;
-		std::cout << "Right Trigger/R2: " << axes[5] << std::endl;
+		//std::cout << "Número de ejes disponibles :=>" << axesCount << std::endl;
+		//std::cout << "Left Stick X axis: " << axes[0] << std::endl;
+
 
 		if(fabs(axes[1]) > 0.2){
 			modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0, 0, -axes[1] * 0.1));
@@ -832,10 +828,10 @@ bool processInput(bool continueApplication) {
 			animationMayowIndex = 0;
 		}
 
-		if(fabs(axes[3]) > 0.2){
-			camera->mouseMoveCamera(axes[3], 0.0, deltaTime);
-		}if(fabs(axes[4]) > 0.2){
-			camera->mouseMoveCamera(0.0, axes[4], deltaTime);
+		if(fabs(axes[2]) > 0.2){
+			camera->mouseMoveCamera(axes[2], 0.0, deltaTime);
+		}if(fabs(axes[3]) > 0.2){
+			camera->mouseMoveCamera(0.0, axes[3], deltaTime);
 		}
 
 		const unsigned char * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
