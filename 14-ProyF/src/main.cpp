@@ -247,6 +247,22 @@ std::vector<glm::vec3> PuentePosition = {
 	
 };
 
+std::vector<glm::vec3> IslaPosition = {
+	glm::vec3(0.0, 0.0, 0.0), 
+	glm::vec3(0.0, 5.0, 1.0),
+	glm::vec3(7.0, 7.0, 2.0),
+	glm::vec3(9.0, 12.0, 3.0),
+	glm::vec3(7.0, 18.0, 4.0),
+	glm::vec3(1.0, 22.0, 5.0),
+	glm::vec3(-6.0, 21.0, 6.0),
+	glm::vec3(-8.0, 15.0, 7.5),
+	glm::vec3(-6.0, 8.0, 9.0),
+	glm::vec3(0.0, 5.0, 10.0),
+	glm::vec3(7.0, 7.0, 11.5),
+	glm::vec3(8.0, 12.0, 12.5),
+	glm::vec3(7.0, 18.0, 13.5),	
+};
+
 double deltaTime;
 double currTime, lastTime;
 
@@ -1412,11 +1428,16 @@ void renderSolidScene(){
 	matrixModelTower[3][1] = terrain.getHeightTerrain(matrixModelTower[3][0], matrixModelTower[3][2]);
 	modelTower.render(matrixModelTower);
 	//matrixModelIsle[3][1] = terrain.getHeightTerrain(matrixModelIsle[3][0], matrixModelIsle[3][2]);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureIsleID);
-	shaderMulLighting.setInt("texture1", 0);
-	modelIsle.render(matrixModelIsle);
+	for(int i = 0; i < IslaPosition.size(); i++){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureIsleID);
+		shaderMulLighting.setInt("texture1", 0);
+		glm::mat4 modelMatrixIsle = glm::mat4(matrixModelIsle);
+		modelMatrixIsle = glm::translate(modelMatrixIsle, IslaPosition[i]);
+		modelIsle.render(modelMatrixIsle);
+		
+	}
+		
 	glActiveTexture(GL_TEXTURE0);
 	
 	// Render lamp
@@ -1528,10 +1549,11 @@ void applicationLoop() {
 	matrixModelBordePuente = glm::translate(matrixModelBordePuente, glm::vec3(8.0, 2.0, 7.0));
 	matrixModelBordePuente = glm::rotate(matrixModelBordePuente, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
-	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(5.0, 2.0, 5.0));
+	matrixModelIsle = glm::scale(matrixModelIsle, glm::vec3(3.0, 3.0, 3.0));
+	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(15.5, 4.0, -55.0));
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	
- 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -5.0f));
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -150.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
