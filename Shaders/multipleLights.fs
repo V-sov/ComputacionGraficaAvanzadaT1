@@ -36,7 +36,7 @@ struct  SpotLight{
 
 };
 
-const int MAX_POINT_LIGHTS = 30;
+const int MAX_POINT_LIGHTS = 45;
 const int MAX_SPOT_LIGHTS = 1;
 
 out vec4 color;

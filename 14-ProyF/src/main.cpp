@@ -234,6 +234,9 @@ std::vector<glm::vec3> FaroPosition = {
 	glm::vec3(52.0, 0, -131.5),
 	glm::vec3(52.0, 0, -143.2),
 	glm::vec3(52.0, 0, -154.7),
+	
+	glm::vec3(40.0, 0, -143.2),
+	glm::vec3(40.0, 0, -154.7),
 };
 std::vector<float> FaroOrientation = {
 	-17.0, -82.67, 23.70, 23.70
