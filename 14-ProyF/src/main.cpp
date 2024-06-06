@@ -309,17 +309,17 @@ const float avance = 0.1;
 #define NUM_SOURCES 3
 #define NUM_ENVIRONMENTS 1
 // Listener
-ALfloat listenerPos[] = { 0.0, 0.0, 4.0 };
+ALfloat listenerPos[] = { 0.0, 0.0, 0.0 };
 ALfloat listenerVel[] = { 0.0, 0.0, 0.0 };
 ALfloat listenerOri[] = { 0.0, 0.0, 1.0, 0.0, 1.0, 0.0 };
 // Source 0
-ALfloat source0Pos[] = { -2.0, 0.0, 0.0 };
+ALfloat source0Pos[] = { 0.0, 0.0, 0.0 };
 ALfloat source0Vel[] = { 0.0, 0.0, 0.0 };
 // Source 1
-ALfloat source1Pos[] = { 2.0, 0.0, 0.0 };
+ALfloat source1Pos[] = { 0.0, 0.0, 0.0 };
 ALfloat source1Vel[] = { 0.0, 0.0, 0.0 };
 // Source 2
-ALfloat source2Pos[] = { 2.0, 0.0, 0.0 };
+ALfloat source2Pos[] = { 0.0, 0.0, 0.0 };
 ALfloat source2Vel[] = { 0.0, 0.0, 0.0 };
 // Buffers
 ALuint buffer[NUM_BUFFERS];
@@ -947,9 +947,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	}
 	// Generate buffers, or else no sound will happen!
 	alGenBuffers(NUM_BUFFERS, buffer);
-	buffer[0] = alutCreateBufferFromFile("../sounds/fountain.wav");
-	buffer[1] = alutCreateBufferFromFile("../sounds/fire.wav");
-	buffer[2] = alutCreateBufferFromFile("../sounds/darth_vader.wav");
+	buffer[0] = alutCreateBufferFromFile("../sounds/LeaveBeforeDark.wav");
+	buffer[1] = alutCreateBufferFromFile("../sounds/screams.wav");
+	buffer[2] = alutCreateBufferFromFile("../sounds/scary_cry.wav");
 	int errorAlut = alutGetError();
 	if (errorAlut != ALUT_ERROR_NO_ERROR){
 		printf("- Error open files with alut %d !!\n", errorAlut);
@@ -967,15 +967,15 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		printf("init - no errors after alGenSources\n");
 	}
 	alSourcef(source[0], AL_PITCH, 1.0f);
-	alSourcef(source[0], AL_GAIN, 3.0f);
+	alSourcef(source[0], AL_GAIN, 20.0f);
 	alSourcefv(source[0], AL_POSITION, source0Pos);
 	alSourcefv(source[0], AL_VELOCITY, source0Vel);
 	alSourcei(source[0], AL_BUFFER, buffer[0]);
 	alSourcei(source[0], AL_LOOPING, AL_TRUE);
-	alSourcef(source[0], AL_MAX_DISTANCE, 2000);
+	alSourcef(source[0], AL_MAX_DISTANCE, 100000);
 
 	alSourcef(source[1], AL_PITCH, 1.0f);
-	alSourcef(source[1], AL_GAIN, 0.5f);
+	alSourcef(source[1], AL_GAIN, 5.0f);
 	alSourcefv(source[1], AL_POSITION, source1Pos);
 	alSourcefv(source[1], AL_VELOCITY, source1Vel);
 	alSourcei(source[1], AL_BUFFER, buffer[1]);
@@ -983,12 +983,12 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	alSourcef(source[1], AL_MAX_DISTANCE, 1000);
 
 	alSourcef(source[2], AL_PITCH, 1.0f);
-	alSourcef(source[2], AL_GAIN, 0.3f);
+	alSourcef(source[2], AL_GAIN, 4.0f);
 	alSourcefv(source[2], AL_POSITION, source2Pos);
 	alSourcefv(source[2], AL_VELOCITY, source2Vel);
 	alSourcei(source[2], AL_BUFFER, buffer[2]);
 	alSourcei(source[2], AL_LOOPING, AL_TRUE);
-	alSourcef(source[2], AL_MAX_DISTANCE, 2000);
+	alSourcef(source[2], AL_MAX_DISTANCE, 1000);
 
 	/*******************************************
 	 * Inicializacion del framebuffer para
@@ -2144,6 +2144,53 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		
 
 		glfwSwapBuffers(window);
+		
+		//OpenAL Sound data
+		source0Pos[0] = modelMatrixHeroe[3].x;
+		source0Pos[1] = modelMatrixHeroe[3].y;
+		source0Pos[2] = modelMatrixHeroe[3].z;
+		alSourcefv(source[0], AL_POSITION, source0Pos);
+		
+		source1Pos[0] = matrixModelTower[3].x;
+		source1Pos[1] = matrixModelTower[3].y;
+		source1Pos[2] = matrixModelTower[3].z;
+		alSourcefv(source[1], AL_POSITION, source1Pos);
+
+		source2Pos[0] = matrixModelArc[3].x;
+		source2Pos[1] = matrixModelArc[3].y;
+		source2Pos[2] = matrixModelArc[3].z;
+		alSourcefv(source[2], AL_POSITION, source2Pos);
+			
+		// listenerPos[0] = modelMatrixMayow[3].x;
+		// listenerPos[1] = modelMatrixMayow[3].y;
+		// listenerPos[2] = modelMatrixMayow[3].z;
+		// alListenerfv(AL_POSITION, listenerPos);
+		//Esto es para la cámara FPC
+		listenerPos[0] = camera->getPosition().x;
+		listenerPos[1] = camera->getPosition().y;
+		listenerPos[2] = camera->getPosition().z;
+		alListenerfv(AL_POSITION, listenerPos);
+
+		// glm::vec3 upModel = modelMatrixMayow[1];
+		// glm::vec3 frontModel = modelMatrixMayow[2];
+		//Esto es para la FPC
+		glm::vec3 upModel = camera->getUp();
+		glm::vec3 frontModel = camera->getFront();
+		listenerOri[0] = frontModel.x;
+		listenerOri[1] = frontModel.y;
+		listenerOri[2] = frontModel.z;
+		listenerOri[3] = upModel.x;
+		listenerOri[4] = upModel.y;
+		listenerOri[5] = upModel.z;
+		alListenerfv(AL_ORIENTATION,listenerOri);
+
+		for(unsigned int i = 0; i < sourcesPlay.size(); i++){
+			if(sourcesPlay[i]){
+				alSourcePlay(source[i]);
+				sourcesPlay[i] = false;
+			}
+		}
+
 	}
 }
 
