@@ -37,7 +37,7 @@ class DLL_PUBLIC FirstPersonCamera : public Camera
 public:
 	FirstPersonCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 worldUp =
 		glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
-		float yaw = YAW, float pitch = PITCH, float speed = SPEED, float sensitivity = SENSITIVTY);
+		float yaw = YAW, float pitch = PITCH, float speed = SPEED, float sensitivity = SENSITIVITY);
 	void mouseMoveCamera(float xoffset, float yoffset, float dt);
 	void scrollMoveCamera(float soffset, float dt);
 	void updateCamera();

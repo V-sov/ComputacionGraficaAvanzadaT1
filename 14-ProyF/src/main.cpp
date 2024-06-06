@@ -1,6 +1,8 @@
 #define _USE_MATH_DEFINES
 #define TRIANGLE_BUTTON 3
 #define CIRCLE_BUTTON 1
+#define JOYSTICK_LEFT_BUTTON 0 // Suponiendo que el botón izquierdo del joystick tiene el índice 0
+
 #include <cmath>
 //glew include
 #include <GL/glew.h>
@@ -82,7 +84,8 @@ Shader shaderDepth;
 
 Shader shaderViewDepth;
 
-std::shared_ptr<Camera> camera(new ThirdPersonCamera());
+std::shared_ptr<Camera> camera(new ThirdPersonCamera()); //Intancia de la camara en tercera persona
+std::shared_ptr<FirstPersonCamera> cameraFP(new FirstPersonCamera());
 float distanceFromTarget = 15.0;
 
 //Botón de pausa
@@ -96,6 +99,8 @@ bool ctrlRelease = true;
 bool muerteRelease = true;
 bool controlRelease = true;
 bool checkRelease = true;
+bool isThirdCamera = true;
+bool changingCamera = false;
 
 //Valores para checkpoint
 // Pos. Arcos
@@ -460,7 +465,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	terrain.init();
 	terrain.setShader(&shaderTerrain);
 
-	camera->setPosition(glm::vec3(20.0, 3.0, 9.0));
+	camera->setPosition(glm::vec3(-15.0f, 3.0f, 0.0f));
 	camera->setDistanceFromTarget(distanceFromTarget);
 	camera->setSensitivity(1.0);
 	
@@ -476,9 +481,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
  	modelTextControles = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
 	modelTextControles->Initialize();
 
-	camera->setPosition(glm::vec3(20.0, 3.0, 9.0));
-	camera->setDistanceFromTarget(distanceFromTarget);
-	camera->setSensitivity(1.0);
 
 	// Carga de texturas para el skybox
 	Texture skyboxTexture = Texture("");
@@ -1090,259 +1092,285 @@ void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod) {
 }
 
 bool processInput(bool continueApplication) {
-	if (exitApp || glfwWindowShouldClose(window) != 0) {
-		return false;
-	}
-	
-	if(!iniciaPartida){
-		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+    if (exitApp || glfwWindowShouldClose(window) != 0) {
+        return false;
+    }
+    
+    if (!iniciaPartida) {
+        const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
 
-		bool presionarEnter = (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) || 
-                      (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS);
-		int p3 =glfwGetKey(window, GLFW_KEY_ENTER);
-		if(textureActivaID == textureScreen2ID || textureActivaID == textureMuerteID){
-			ctrlRelease = false;
-		}else {
-			ctrlRelease = true;
-		}
-		if(textureActivaID == textureStartID && presionarEnter && muerteRelease 
-			&& controlRelease && keyrelease && menuRelease){
-			iniciaPartida = true;
-			pause = false;
-			pauseInicio = false;
-			muerte = false;
-			textureActivaID = textureScreen2ID;		
-			vida = 2;
-		}else if(textureActivaID == textureResumeID && presionarEnter){
-			iniciaPartida = true;
-			pause = false;
-			pauseInicio = false;
-			muerte = false;
-			textureActivaID = textureScreen2ID;
-		}
-		else if (textureActivaID == textureControlID && presionarEnter){
-			controlRelease = false;
-			textureActivaID = textureKeysID;		
-		}
-		else if(textureActivaID == textureKeysID && presionarEnter && controlRelease){
+        bool presionarEnter = (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) || 
+                              (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS);
+        int p3 = glfwGetKey(window, GLFW_KEY_ENTER);
+        if (textureActivaID == textureScreen2ID || textureActivaID == textureMuerteID) {
+            ctrlRelease = false;
+        } else {
+            ctrlRelease = true;
+        }
+        if (textureActivaID == textureStartID && presionarEnter && muerteRelease 
+            && controlRelease && keyrelease && menuRelease) {
+            iniciaPartida = true;
+            pause = false;
+            pauseInicio = false;
+            muerte = false;
+            textureActivaID = textureScreen2ID;        
+            vida = 2;
+        } else if (textureActivaID == textureResumeID && presionarEnter) {
+            iniciaPartida = true;
+            pause = false;
+            pauseInicio = false;
+            muerte = false;
+            textureActivaID = textureScreen2ID;
+        }
+        else if (textureActivaID == textureControlID && presionarEnter) {
+            controlRelease = false;
+            textureActivaID = textureKeysID;        
+        }
+        else if (textureActivaID == textureKeysID && presionarEnter && controlRelease) {
+            keyrelease = false;
+            textureActivaID = textureStartID;        
+        }
+        else if (!presionarOpcion && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+            presionarOpcion = true;
+            glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
+            if (textureActivaID == textureStartID && !muerte && ctrlRelease) {
+                textureActivaID = textureControlID;
+            }
+            else if (textureActivaID == textureControlID && ctrlRelease) {
+                textureActivaID = textureStartID;
+            }
+            else if (textureActivaID == textureMenuID && !pauseInicio && ctrlRelease) {
+                textureActivaID = textureResumeID;            
+            } else if (textureActivaID == textureResumeID && ctrlRelease) {
+                textureActivaID = textureMenuID;
+            }
+            else if (textureActivaID == textureMuerteID && muerte && ctrlRelease) {
+                textureActivaID = textureMuerteID;
+            }
+            else if (textureActivaID == textureKeysID && ctrlRelease) {
+                textureActivaID = textureKeysID;
+            }
+        }
+        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+            presionarOpcion = false;
+        }
+        if (textureActivaID == textureMenuID && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+            textureActivaID = textureStartID;
+            menuRelease = false;
+            iniciaPartida = false;
+            pauseInicio = true;
+        }
+    } else if (muerte == true && iniciaPartida == true) {
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+            iniciaPartida = false;
+            muerteRelease = false;
+            textureActivaID = textureMenuID;
+            accionMuerte();
+        }
+    }
+    // Pantalla STOP
+    if (enableCountSelected && (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS || 
+        (glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount)[TRIANGLE_BUTTON] == GLFW_PRESS))) {
+        if (!pause && !pauseInicio) {
+            if (!muerte) {
+                pause = true;
+                textureActivaID = textureResumeID;
+                iniciaPartida = false;
+            }
+        } else if (muerte || pause || pauseInicio) {
+            textureActivaID = textureActivaID;
+        }
+    }
 
-			keyrelease = false;
-			textureActivaID = textureStartID;		
-		}
-		else if(!presionarOpcion && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS){
-			presionarOpcion = true;
-			glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
-			//if((textureActivaID == textureStartID && pauseInicio) || (textureActivaID == textureStartID && muerte))
-				//textureActivaID = textureStartID;
-			if(textureActivaID == textureStartID && !muerte && ctrlRelease){
-				textureActivaID = textureControlID;
+    if (enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS) {
+        if (iniciaPartida) {
+            if (vida == 0) {
+                muerte = true;
+                textureActivaID = textureMuerteID;
+            } else {
+                chec = true;
+            }
+            checkRelease = false;
+        }
+    }
+    if (enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE) {
+        checkRelease = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE) {
+        if (!controlRelease) {
+            controlRelease = true;
+        } else if (!keyrelease) {
+            keyrelease = true;
+        } else if (!menuRelease) {
+            menuRelease = true;
+        } else if (!muerteRelease) {
+            muerteRelease = true;
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+        ctrlRelease = true;
+    }
+
+    if (pause == false && iniciaPartida && !muerte) {
+        if (glfwJoystickPresent(GLFW_JOYSTICK_1) == GL_TRUE) {
+            std::cout << "Está presente el joystick" << std::endl;
+            int axesCount, buttonCount;
+            const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+            std::cout << "Right Stick X axis: " << axes[2] << std::endl;
+            std::cout << "Right Stick Y axis: " << axes[3] << std::endl;
+
+            if (fabs(axes[1]) > 0.2) {
+                modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, -axes[1] * 0.1));
+                animationHeroeIndex = 2;
+            }
+            if (fabs(axes[0]) > 0.2) {
+                modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-axes[0] * 0.5f), glm::vec3(0, 1, 0));
+                animationHeroeIndex = 2;
+            }
+
+            if (fabs(axes[2]) > 0.2) {
+                camera->mouseMoveCamera(-axes[2], 0.0, deltaTime);
+            }
+            if (fabs(axes[3]) > 0.2) {
+                camera->mouseMoveCamera(0.0, -axes[3], deltaTime);
+            }
+
+            const unsigned char * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+            if (buttons[0] == GLFW_PRESS)
+                std::cout << "Se presiona x" << std::endl;
+
+            if (!isJump && buttons[0] == GLFW_PRESS) {
+                isJump = true;
+                startTimeJump = currTime;
+                tmv = 0;
+            }
+        }
+		GLFWgamepadstate gamepadState;
+		if (!isThirdCamera) {
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+				camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+
+			// Integración de la rotación del joystick derecho
+			if (glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState) == GLFW_PRESS) {
+				float rightThumbX = gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+				float rightThumbY = gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+				if (fabs(rightThumbX) > 0.1 || fabs(rightThumbY) > 0.1) {
+					// Lógica para manejar la rotación del joystick derecho
+					// Por ejemplo:
+					camera->mouseMoveCamera(rightThumbX, rightThumbY, deltaTime);
+				}
 			}
-			else if(textureActivaID == textureControlID && ctrlRelease){
-				textureActivaID = textureStartID;
+		} else {
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+				cameraFP->moveFrontCamera(true, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+				cameraFP->moveFrontCamera(false, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+				cameraFP->moveRightCamera(false, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+				cameraFP->moveRightCamera(true, deltaTime);
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
+		}
+
+
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS || (glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState) == GLFW_PRESS &&
+			gamepadState.buttons[GLFW_GAMEPAD_BUTTON_LEFT_THUMB] == GLFW_PRESS)) {
+			changingCamera = true;
+		}
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_RELEASE || (glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState) == GLFW_PRESS &&
+			gamepadState.buttons[GLFW_GAMEPAD_BUTTON_LEFT_THUMB] == GLFW_RELEASE)) {
+			if (changingCamera) {
+				isThirdCamera = !isThirdCamera;
+				std::cout << "Changed Camera" << std::endl;
 			}
-			else if(textureActivaID == textureMenuID && !pauseInicio && ctrlRelease)
-				textureActivaID = textureResumeID;			
-			else if(textureActivaID == textureResumeID && ctrlRelease){
-					textureActivaID = textureMenuID;
-			}
-			else if(textureActivaID = textureMuerteID && muerte && ctrlRelease)
-				textureActivaID = textureMuerteID;
-			else if(textureActivaID = textureKeysID && ctrlRelease){
-				textureActivaID = textureKeysID;
-			}
-			else{
-				textureActivaID = textureActivaID;
-
-			}
-
-		}
-		else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
-			presionarOpcion = false;
-		if(textureActivaID == textureMenuID && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
-			textureActivaID = textureStartID;
-			menuRelease = false;
-			iniciaPartida = false;
-			pauseInicio = true;
-		}
-	}
-	else if(muerte == true && iniciaPartida == true ){
-			if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
-				iniciaPartida = false;
-				muerteRelease = false;
-				textureActivaID = textureMenuID;
-				accionMuerte();
-			}
-	}
-	// Pantalla STOP
-	if (enableCountSelected && (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS || 
-		(glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount)[TRIANGLE_BUTTON] == GLFW_PRESS))) {
-		if (!pause && !pauseInicio) {
-			if (!muerte) {
-				pause = true;
-				textureActivaID = textureResumeID;
-				iniciaPartida = false;
-			}
-		} else if (muerte || pause || pauseInicio) {
-			textureActivaID = textureActivaID;
-		}
-	}
-
-	if(enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS){
-		if (iniciaPartida){
-			if(vida == 0){
-				muerte = true;
-				textureActivaID = textureMuerteID;
-			}else{
-				chec = true;
-			}
-			checkRelease = false;
-		}
-	}
-	if(enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE){
-		checkRelease = true;
-	}
-
-	if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE){
-			if(!controlRelease){
-				controlRelease = true;
-			}else if(!keyrelease){
-				keyrelease = true;
-			}else if(!menuRelease){
-				menuRelease = true;
-			}else if(!muerteRelease){
-				muerteRelease = true;
-			}
-		}
-	if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE){
-		ctrlRelease = true;
-	}
-	if(pause==false && iniciaPartida && !muerte){
-		if (glfwJoystickPresent(GLFW_JOYSTICK_1) == GL_TRUE) {
-			std::cout << "Esta presente el joystick" << std::endl;
-			int axesCount, buttonCount;
-			const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
-			//std::cout << "Número de ejes disponibles :=>" << axesCount << std::endl;
-			//std::cout << "Left Stick X axis: " << axes[0] << std::endl; //si
-			//std::cout << "Left Stick Y axis: " << axes[1] << std::endl; //si
-			std::cout << "Right Stick X axis: " << axes[2] << std::endl;
-			std::cout << "Right Stick Y axis: " << axes[3] << std::endl; //8 -> X  //10 der, arrib //11 izq, abaj
-			//std::cout << "Right Stick Y axis: " << " "<< axes[3] << std::endl; //9 -> L y R
-			//std::cout << "Right Trigger/R2: " << axes[5] << std::endl;
-
-			if(fabs(axes[1]) > 0.2){
-				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, -axes[1] * 0.1));
-				animationHeroeIndex = 2;
-			}if(fabs(axes[0]) > 0.2){
-				modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-axes[0] * 0.5f), glm::vec3(0, 1, 0));
-				animationHeroeIndex = 2;
-			}
-
-			if(fabs(axes[2]) > 0.2){
-				camera->mouseMoveCamera(-axes[2], 0.0, deltaTime);
-			}if(fabs(axes[3]) > 0.2){
-				camera->mouseMoveCamera(0.0, -axes[3], deltaTime);
-			}
-
-			const unsigned char * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-			//std::cout << "Número de botones disponibles :=>" << buttonCount << std::endl;
-			if(buttons[0] == GLFW_PRESS)
-				std::cout << "Se presiona x" << std::endl;
-
-			if(!isJump && buttons[0] == GLFW_PRESS){
-				isJump = true;
-				startTimeJump = currTime;
-				tmv = 0;
-			}
+			changingCamera = false;
 		}
 
-		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			camera->mouseMoveCamera(offsetX, 0.0, deltaTime);
-		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-			camera->mouseMoveCamera(0.0, offsetY, deltaTime);
+        offsetX = 0;
+        offsetY = 0;
 
-		offsetX = 0;
-		offsetY = 0;
+        // Seleccionar modelo
+        if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+            enableCountSelected = false;
+            modelSelected++;
+            if (modelSelected > 4)
+                modelSelected = 0;
+            if (modelSelected == 1)
+                modelSelected = 0;
+            if (modelSelected == 2)
+                modelSelected = 0;
+            if (modelSelected == 3)
+                modelSelected = 0;
+            if (modelSelected == 4)
 
-		// Seleccionar modelo
-		if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
-			enableCountSelected = false;
-			modelSelected++;
-			if(modelSelected > 4)
-				modelSelected = 0;
-			if(modelSelected == 1)
-				modelSelected = 0;
-			if (modelSelected == 2)
-				modelSelected = 0;
-			if(modelSelected == 3)
-				modelSelected = 0;
-			if (modelSelected == 4)
+            std::cout << "modelSelected: " << modelSelected << std::endl;
+        } else if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) {
+            enableCountSelected = true;
+        }
 
-			std::cout << "modelSelected:" << modelSelected << std::endl;
-		}
-		else if(glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE)
-			enableCountSelected = true;
+        // Guardar key frames
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            record = true;
+            if (myfile.is_open())
+                myfile.close();
+            myfile.open(fileName);
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            record = false;
+            myfile.close();
+            std::cout << "";
+        }
+        if (availableSave && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+            saveFrame = true;
+            availableSave = false;
+        }
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
+            availableSave = true;
 
-		// Guardar key frames
-		if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
-				&& glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
-			record = true;
-			if(myfile.is_open())
-				myfile.close();
-			myfile.open(fileName);
-		}
-		if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE
-				&& glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
-			record = false;
-			myfile.close();
-			if(modelSelected == 1)
-			if (modelSelected == 2)
-			if(modelSelected == 3)
-			if (modelSelected == 4)
-			std::cout<<"";
-		}
-		if(availableSave && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
-			saveFrame = true;
-			availableSave = false;
-		}if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE)
-			availableSave = true;
+        // Controles de Heroe
+        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            modelMatrixHeroe = glm::rotate(modelMatrixHeroe, 0.02f, glm::vec3(0, 1, 0));
+            animationHeroeIndex = 2;
+        } else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            modelMatrixHeroe = glm::rotate(modelMatrixHeroe, -0.02f, glm::vec3(0, 1, 0));
+            animationHeroeIndex = 2;
+        }
+        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0.0, 0.0, 0.2));
+            animationHeroeIndex = 2;
+        } else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0.0, 0.0, -0.2));
+            animationHeroeIndex = 2;
+        }
+        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+            animationHeroeIndex = 3;
+        }
+        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            animationHeroeIndex = 1;
+        }
+        bool keySpaceStatus = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+        if (!isJump && keySpaceStatus) {
+            isJump = true;
+            startTimeJump = currTime;
+            tmv = 0;
+            animationHeroeIndex = 1;
+        } else if (isJump) {
+            animationHeroeIndex = 1;
+        }
 
-		// Controles de Heroe
-		if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-			modelMatrixHeroe = glm::rotate(modelMatrixHeroe, 0.02f, glm::vec3(0, 1, 0));
-			animationHeroeIndex = 2;
-		} else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-			modelMatrixHeroe = glm::rotate(modelMatrixHeroe, -0.02f, glm::vec3(0, 1, 0));
-			animationHeroeIndex = 2;
-		}
-		if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0.0, 0.0, 0.2));
-			animationHeroeIndex = 2;
-		}
-		else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0.0, 0.0, -0.2));
-			animationHeroeIndex = 2;
-		}
-		if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-	   {
-			animationHeroeIndex = 3;
-	   }
-		if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		{
-			animationHeroeIndex = 1;
-		}
-		bool keySpaceStatus = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
-		if(!isJump && keySpaceStatus){
-			isJump = true;
-			startTimeJump = currTime;
-			tmv = 0;
-			animationHeroeIndex = 1;
-		}else if(isJump)
-			animationHeroeIndex = 1;
-		
-	}
-	glfwPollEvents();
-		return continueApplication;
+        glm::vec3 heroPosition = glm::vec3(modelMatrixHeroe[3]);
+        glm::vec3 cameraOffset = glm::vec3(-5.0f, 2.0f, 0.0f); // Ajusta estos valores según sea necesario
+        glm::vec3 fixedCameraPosition = heroPosition + cameraOffset;
+        camera->setPosition(fixedCameraPosition);
+        camera->setCameraTarget(heroPosition);
+    }
+
+    glfwPollEvents();
+    return continueApplication;
 }
+
 
 void prepareScene(){
 

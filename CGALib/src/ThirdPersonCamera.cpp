@@ -6,7 +6,7 @@ ThirdPersonCamera::ThirdPersonCamera(){
     angleAroundTarget = 0.0f;
     angleTarget = 0.0;
     distanceFromTarget = 1.0f;
-    sensitivity = SENSITIVTY;
+    sensitivity = SENSITIVITY;
     worldUp = glm::vec3(0.0, 1.0, 0.0);
     updateCamera();
 }
