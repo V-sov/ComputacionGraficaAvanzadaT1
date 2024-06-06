@@ -104,9 +104,9 @@ bool changingCamera = false;
 
 //Valores para checkpoint
 // Pos. Arcos
-float arco1x = -3.0;
+float arco1x = 11.0;
 float arco1y = 0.0;
-float arco1z = 2.0;
+float arco1z = 35.0;
 // Vidas
 int vida = 2;
 int warco = 0;
@@ -205,14 +205,7 @@ std::string fileName = "";
 bool record = false;
 
 // Lamps position
-std::vector<glm::vec3> lamp1Position = {
-	glm::vec3(-7.03, 0, -19.14),
-	glm::vec3(24.41, 0, -34.57),
-	glm::vec3(-10.15, 0, -54.1)
-};
-std::vector<float> lamp1Orientation = {
-	-17.0, -82.67, 23.70
-};
+
 std::vector<glm::vec3> lamp2Position = {
 	glm::vec3(-36.52, 0, -23.24),
 	glm::vec3(-52.73, 0, -3.90)
@@ -223,14 +216,29 @@ std::vector<float> lamp2Orientation = {
 
 //Lamps Position
 std::vector<glm::vec3> FaroPosition = {
-	glm::vec3(-7.03, 0, -19.14), 
-	glm::vec3(24.41, 0, -34.57),
-	glm::vec3(-10.15, 0, -54.1),
+	glm::vec3(52.0, 0, 43.5), 
+	glm::vec3(52.0, 0, 32),
+	glm::vec3(52.0, 0, 20.5),
+	glm::vec3(52.0, 0, 9),
+	glm::vec3(52.0, 0, -3.5),
+	glm::vec3(52.0, 0, -14.5),
+	glm::vec3(52.0, 0, -26.0),
+	glm::vec3(52.0, 0, -38.0),
+	glm::vec3(52.0, 0, -49.5),
+	glm::vec3(52.0, 0, -61.5),
+	glm::vec3(52.0, 0, -73.0),
+	glm::vec3(52.0, 0, -85.0),
+	glm::vec3(52.0, 0, -96.5),
+	glm::vec3(52.0, 0, -108.0),
+	glm::vec3(52.0, 0, -120.0),
+	glm::vec3(52.0, 0, -131.5),
+	glm::vec3(52.0, 0, -143.2),
+	glm::vec3(52.0, 0, -154.7),
 };
 std::vector<float> FaroOrientation = {
-	-17.0, -82.67, 23.70
+	-17.0, -82.67, 23.70, 23.70
 }; 
-
+//Puente
 std::vector<glm::vec3> PuentePosition = {
 	glm::vec3(0.0, 0.0, 0.0), 
 	glm::vec3(0.0, 1.95, 0.0),
@@ -251,7 +259,7 @@ std::vector<glm::vec3> PuentePosition = {
 	glm::vec3(0.0, 31.2, 0.5),
 	
 };
-
+//Islas
 std::vector<glm::vec3> IslaPosition = {
 	glm::vec3(0.0, 0.0, 0.0), 
 	glm::vec3(0.0, 5.0, 1.0),
@@ -267,6 +275,13 @@ std::vector<glm::vec3> IslaPosition = {
 	glm::vec3(8.0, 12.0, 12.5),
 	glm::vec3(7.0, 18.0, 13.5),	
 };
+//
+std::vector<glm::vec3> ArcoPosition = {
+	glm::vec3(0.0, 0.0, 0.0),
+	glm::vec3(0.0, 0.0, -180.0),
+
+};
+
 
 double deltaTime;
 double currTime, lastTime;
@@ -1447,11 +1462,16 @@ void renderSolidScene(){
 	matrixModelRock[3][1] = terrain.getHeightTerrain(matrixModelRock[3][0], matrixModelRock[3][2]);
 	modelRock.render(matrixModelRock);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureArcID);
-	shaderMulLighting.setInt("texture1", 0);
-	matrixModelArc[3][1] = terrain.getHeightTerrain(matrixModelArc[3][0], matrixModelArc[3][2]);
-	modelArc.render(matrixModelArc);
+	for(int i = 0; i < ArcoPosition.size(); i++){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureArcID);
+		shaderMulLighting.setInt("texture1", 0);
+		matrixModelArc[3][1] = terrain.getHeightTerrain(matrixModelArc[3][0], matrixModelArc[3][2]);
+		glm::mat4 modelMatrixArc = glm::mat4(matrixModelArc); 
+		modelMatrixArc = glm::translate(modelMatrixArc, ArcoPosition[i]);
+		modelArc.render(modelMatrixArc);
+	}
+
 	// Forze to enable the unit texture to 0 always ----------------- IMPORTANT
 	matrixModelTower[3][1] = terrain.getHeightTerrain(matrixModelTower[3][0], matrixModelTower[3][2]);
 	modelTower.render(matrixModelTower);
@@ -1562,6 +1582,7 @@ void applicationLoop() {
 	int state = 0;
 
 	matrixModelRock = glm::translate(matrixModelRock, glm::vec3(arco1x, arco1y, arco1z));
+	matrixModelArc = glm::scale(matrixModelArc, glm::vec3(2.0, 2.0, 1.0));
 	matrixModelArc = glm::translate(matrixModelArc, glm::vec3(arco1x, arco1y, arco1z));
 	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
 
@@ -1752,20 +1773,20 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			matrixAdjustLamp = glm::scale(matrixAdjustLamp, glm::vec3(1.0));
 			matrixAdjustLamp = glm::translate(matrixAdjustLamp, glm::vec3(0.75, 5.0, 0));
 			glm::vec3 lampPosition = glm::vec3(matrixAdjustLamp[3]);
-			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.16, 0.01)));
-			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.4, 0.32, 0.02)));
-			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].light.specular", glm::value_ptr(glm::vec3(0.6, 0.58, 0.03)));
-			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].position", glm::value_ptr(lampPosition));
-			shaderMulLighting.setFloat("pointLights[" + std::to_string(lamp1Position.size() + i) + "].constant", 1.0);
-			shaderMulLighting.setFloat("pointLights[" + std::to_string(lamp1Position.size() + i) + "].linear", 0.09);
-			shaderMulLighting.setFloat("pointLights[" + std::to_string(lamp1Position.size() + i) + "].quadratic", 0.02);
-			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.16, 0.01)));
-			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.4, 0.32, 0.02)));
-			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].light.specular", glm::value_ptr(glm::vec3(0.6, 0.58, 0.03)));
-			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(lamp1Position.size() + i) + "].position", glm::value_ptr(lampPosition));
-			shaderTerrain.setFloat("pointLights[" + std::to_string(lamp1Position.size() + i) + "].constant", 1.0);
-			shaderTerrain.setFloat("pointLights[" + std::to_string(lamp1Position.size() + i) + "].linear", 0.09);
-			shaderTerrain.setFloat("pointLights[" + std::to_string(lamp1Position.size() + i) + "].quadratic", 0.02);
+			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.16, 0.01)));
+			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.4, 0.32, 0.02)));
+			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].light.specular", glm::value_ptr(glm::vec3(0.6, 0.58, 0.03)));
+			shaderMulLighting.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].position", glm::value_ptr(lampPosition));
+			shaderMulLighting.setFloat("pointLights[" + std::to_string(FaroPosition.size() + i) + "].constant", 1.0);
+			shaderMulLighting.setFloat("pointLights[" + std::to_string(FaroPosition.size() + i) + "].linear", 0.09);
+			shaderMulLighting.setFloat("pointLights[" + std::to_string(FaroPosition.size() + i) + "].quadratic", 0.02);
+			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].light.ambient", glm::value_ptr(glm::vec3(0.2, 0.16, 0.01)));
+			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].light.diffuse", glm::value_ptr(glm::vec3(0.4, 0.32, 0.02)));
+			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].light.specular", glm::value_ptr(glm::vec3(0.6, 0.58, 0.03)));
+			shaderTerrain.setVectorFloat3("pointLights[" + std::to_string(FaroPosition.size() + i) + "].position", glm::value_ptr(lampPosition));
+			shaderTerrain.setFloat("pointLights[" + std::to_string(FaroPosition.size() + i) + "].constant", 1.0);
+			shaderTerrain.setFloat("pointLights[" + std::to_string(FaroPosition.size() + i) + "].linear", 0.09);
+			shaderTerrain.setFloat("pointLights[" + std::to_string(FaroPosition.size() + i) + "].quadratic", 0.02);
 		}
 
 		/************Render de imagen de frente**************/
