@@ -264,6 +264,7 @@ std::vector<glm::vec3> PuentePosition = {
 };
 //Islas
 std::vector<glm::vec3> IslaPosition = {
+	glm::vec3(-05.0, -05.0, -02.0),
 	glm::vec3(0.0, 0.0, 0.0), 
 	glm::vec3(0.0, 5.0, 1.0),
 	glm::vec3(7.0, 7.0, 2.0),
@@ -292,6 +293,7 @@ double currTime, lastTime;
 
 // Jump variables
 bool isJump = false;
+bool isOn = false;
 float GRAVITY = 1.01;
 double tmv = 0;
 double startTimeJump = 0;
@@ -346,6 +348,26 @@ void destroy();
 bool processInput(bool continueApplication = true);
 
 // Implementacion de todas las funciones.
+
+// Ver lo de la caída
+bool isHeroeOn(const AbstractModel::OBB& heroe, const AbstractModel::OBB& surf){
+	// Posiciones mínimas y máximas de los OBB
+	glm::vec3 surfMin = surf.c - surf.e;
+    glm::vec3 surfMax = surf.c + surf.e;
+	glm::vec3 heroeMin = heroe.c - heroe.e;
+    glm::vec3 heroeMax = heroe.c + heroe.e;
+
+	 // Verificamos si el héroe está dentro de los límites horizontales de la isla
+    bool withinX = heroeMax.x >= surfMin.x && heroeMin.x <= surfMax.x;
+    bool withinZ = heroeMax.z >= surfMin.z && heroeMin.z <= surfMax.z;
+
+    // Verificamos si la base del héroe está tocando la parte superior de la isla
+    bool onTop = heroeMin.y <= surfMax.y && heroeMax.y >= surfMax.y;
+
+    return withinX && withinZ && onTop;
+
+
+}
 
 //Implementación para el botón la muerte
 void accionMuerte(){
@@ -1232,11 +1254,11 @@ bool processInput(bool continueApplication) {
 
     if (pause == false && iniciaPartida && !muerte) {
         if (glfwJoystickPresent(GLFW_JOYSTICK_1) == GL_TRUE) {
-            std::cout << "Está presente el joystick" << std::endl;
+            //std::cout << "Está presente el joystick" << std::endl;
             int axesCount, buttonCount;
             const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
-            std::cout << "Right Stick X axis: " << axes[2] << std::endl;
-            std::cout << "Right Stick Y axis: " << axes[3] << std::endl;
+            //std::cout << "Right Stick X axis: " << axes[2] << std::endl;
+            //std::cout << "Right Stick Y axis: " << axes[3] << std::endl;
 
             if (fabs(axes[1]) > 0.2) {
                 modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, -axes[1] * 0.1));
@@ -1538,7 +1560,11 @@ void renderSolidScene(){
 		modelMatrixHeroe[2] = glm::vec4(ejez, 0.0);
 		modelMatrixHeroe[3][1] = -GRAVITY * tmv * tmv + 3.5 * tmv + terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2]);
 		tmv = currTime - startTimeJump;
-		if(modelMatrixHeroe[3][1] < terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2])){
+		if(isOn == true){
+			isJump = false;
+			isOn == false;
+		}
+		else if(modelMatrixHeroe[3][1] < terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2] && isJump)){
 			isJump = false;
 			modelMatrixHeroe[3][1] = terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2]);
 		}
@@ -1605,7 +1631,7 @@ void applicationLoop() {
 	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(15.5, 4.0, -55.0));
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	
- 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -150.0f));
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -140.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
@@ -1895,6 +1921,49 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		 * IMPORTANT do this before interpolations
 		 *******************************************/
 
+		//Colliders puentes 
+		for(int i = 0; i < PuentePosition.size(); i++){
+			AbstractModel::OBB puenteCollider;
+			glm::mat4 modelMatrixColliderPuente = glm::mat4(1.0);
+			modelMatrixColliderPuente = glm::translate(matrixModelBasePuente, PuentePosition[i]+glm::vec3(-0.45,0.630,-0.750));
+			//modelMatrixColliderPuente = glm::translate(matrixModelBasePuente, PuentePosition[i]+glm::vec3(-0.45,0.630,-0.60));
+			//modelMatrixColliderPuente = glm::rotate(modelMatrixColliderPuente, 
+			//	glm::radians(180.0f), glm::vec3(0,0, 01));
+			modelMatrixColliderPuente = glm::rotate(modelMatrixColliderPuente, 
+				glm::radians(90.0f), glm::vec3(1, 0, 0));
+			addOrUpdateColliders(collidersOBB, "puente-" + std::to_string(i), puenteCollider,
+				modelMatrixColliderPuente);
+			puenteCollider.u = glm::quat_cast(modelMatrixColliderPuente);
+			modelMatrixColliderPuente = glm::scale(modelMatrixColliderPuente, glm::vec3(7.5,0.5,9.1));
+			modelMatrixColliderPuente = glm::translate(modelMatrixColliderPuente, modelBasePuente.getObb().c);
+			puenteCollider.c = modelMatrixColliderPuente[3];
+			puenteCollider.e = modelBasePuente.getObb().e*glm::vec3(7.50f,0.5f,9.10f);
+			//puenteCollider.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+			std::get<0>(collidersOBB.find("puente-" + std::to_string(i))->second) = puenteCollider;
+		}
+
+		//Colliders Islas
+		//Colliders puentes 
+		for(int i = 0; i < IslaPosition.size(); i++){
+			AbstractModel::OBB islaCollider;
+			glm::mat4 modelMatrixColliderIsla = glm::mat4(1.0);
+			modelMatrixColliderIsla = glm::translate(matrixModelIsle, IslaPosition[i]+glm::vec3(-0.4,0.20,0.10152));
+			//modelMatrixColliderIsla = glm::translate(matrixModelIsle, PuentePosition[i]+glm::vec3(-0.45,0.630,-0.750));
+			//modelMatrixColliderIsla = glm::rotate(modelMatrixColliderIsla, 
+			//	glm::radians(180.0f), glm::vec3(0,0, 01));
+			modelMatrixColliderIsla = glm::rotate(modelMatrixColliderIsla, 
+				glm::radians(90.0f), glm::vec3(1, 0, 0));
+			addOrUpdateColliders(collidersOBB, "isla-" + std::to_string(i), islaCollider,
+				modelMatrixColliderIsla);
+			islaCollider.u = glm::quat_cast(modelMatrixColliderIsla);
+			modelMatrixColliderIsla = glm::scale(modelMatrixColliderIsla, glm::vec3(2.80,0,5.5));
+			modelMatrixColliderIsla = glm::translate(modelMatrixColliderIsla, modelIsle.getObb().c);
+			islaCollider.c = modelMatrixColliderIsla[3];
+			islaCollider.e = modelIsle.getObb().e* glm::vec3(2.80,0,5.5);
+			//islaCollider.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+			std::get<0>(collidersOBB.find("isla-" + std::to_string(i))->second) = islaCollider;
+		}
+
 		//Collider del la rock
 		AbstractModel::SBB rockCollider;
 		glm::mat4 modelMatrixColliderRock= glm::mat4(matrixModelRock);
@@ -1911,12 +1980,12 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				glm::radians(-90.0f), glm::vec3(1, 0, 0));
 		// Set the orientation of collider before doing the scale
 		heroeCollider.u = glm::quat_cast(modelmatrixColliderHeroe);
-		modelmatrixColliderHeroe = glm::scale(modelmatrixColliderHeroe, glm::vec3(0.021, 0.021, 0.021));
+		modelmatrixColliderHeroe = glm::scale(modelmatrixColliderHeroe, glm::vec3(0.5,0.3,0.02));
 		modelmatrixColliderHeroe = glm::translate(modelmatrixColliderHeroe,
 				glm::vec3(heroeModelAnimate.getObb().c.x,
 						heroeModelAnimate.getObb().c.y,
 						heroeModelAnimate.getObb().c.z));
-		heroeCollider.e = heroeModelAnimate.getObb().e * glm::vec3(0.021, 0.021, 0.021) * glm::vec3(0.787401574, 0.787401574, 0.787401574);
+		heroeCollider.e = heroeModelAnimate.getObb().e * glm::vec3(0.5f,0.3f,0.02f);
 		heroeCollider.c = glm::vec3(modelmatrixColliderHeroe[3]);
 		addOrUpdateColliders(collidersOBB, "heroe", heroeCollider, modelMatrixHeroe);
 
@@ -1960,6 +2029,10 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			modelTextMuerte->render("GAME OVER",-0.78,0.0);
 		}
 
+		/**
+		 * Colisiones de Oriented Bounding Box - Oriented Bounding Box
+		 */
+
 		/*********************Prueba de colisiones****************************/
 		for (std::map<std::string,
 			std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it =
@@ -1987,9 +2060,11 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
 				if (it != jt && 
 					testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay colision entre " << it->first << " y el modelo" <<
-						jt->first << std::endl;
-					isColision = true;
+					//std::cout << "Hay colision entre " << it->first << " y el modelo" <<
+					//	jt->first << std::endl;
+					//isColision = true;
+					isJump = false;
+					modelMatrixHeroe[3][1] = modelMatrixHeroe[3][1];
 				}
 			}
 			addOrUpdateCollisionDetection(collisionDetection, it->first, isColision);

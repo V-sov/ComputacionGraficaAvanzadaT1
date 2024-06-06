@@ -1560,7 +1560,7 @@ void applicationLoop() {
 			for(itObb2 = collidersOBB.begin(); itObb2 != collidersOBB.end() && !isColision; itObb2++){
 				if(itObb1 != itObb2 
 					&& testOBBOBB(std::get<0>(itObb1->second), std::get<0>(itObb2->second))){
-					std::cout << "Colision Hay colision entre " << itObb1->first << " y el modelo" << 
+					std::cout << "1 Hay colision entre " << itObb1->first << " y el modelo" << 
 						itObb2->first << std::endl;
 					isColision = true;
 				}
@@ -1572,7 +1572,7 @@ void applicationLoop() {
 			bool isColision = false;
 			for(itObb1 = collidersOBB.begin(); itObb1 != collidersOBB.end(); itObb1++){
 				if(testSphereOBox(std::get<0>(itSBB1->second), std::get<0>(itObb1->second))){
-					std::cout << "NonColision Hay colision entre " << itSBB1->first << " y el objeto " << 
+					std::cout << "2Hay colision entre " << itSBB1->first << " y el objeto " << 
 						itObb1->first << std::endl;
 					isColision = true;
 					addOrUpdateCollisionDetection(collisionDetector, itObb1->first, true);	
@@ -1587,7 +1587,7 @@ void applicationLoop() {
 				if(itSBB1 != itSBB2 && testSphereSphereIntersection(
 					std::get<0>(itSBB1->second), std::get<0>(itSBB2->second)
 				)){
-					std::cout << "SupColison Hay colision entre " << itSBB1->first << " y el objeto " << 
+					std::cout << "Hay colision entre " << itSBB1->first << " y el objeto " << 
 						itSBB2->first << std::endl;
 					isColision = true;
 				}
