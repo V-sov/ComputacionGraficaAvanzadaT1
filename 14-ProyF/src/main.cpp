@@ -264,7 +264,6 @@ std::vector<glm::vec3> PuentePosition = {
 };
 //Islas
 std::vector<glm::vec3> IslaPosition = {
-	glm::vec3(-05.0, -05.0, -02.0),
 	glm::vec3(0.0, 0.0, 0.0), 
 	glm::vec3(0.0, 5.0, 1.0),
 	glm::vec3(7.0, 7.0, 2.0),
@@ -1560,11 +1559,8 @@ void renderSolidScene(){
 		modelMatrixHeroe[2] = glm::vec4(ejez, 0.0);
 		modelMatrixHeroe[3][1] = -GRAVITY * tmv * tmv + 3.5 * tmv + terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2]);
 		tmv = currTime - startTimeJump;
-		if(isOn == true){
-			isJump = false;
-			isOn == false;
-		}
-		else if(modelMatrixHeroe[3][1] < terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2] && isJump)){
+
+		if(modelMatrixHeroe[3][1] < terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2])){
 			isJump = false;
 			modelMatrixHeroe[3][1] = terrain.getHeightTerrain(modelMatrixHeroe[3][0], modelMatrixHeroe[3][2]);
 		}
@@ -1631,7 +1627,7 @@ void applicationLoop() {
 	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(15.5, 4.0, -55.0));
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	
- 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -140.0f));
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(30.0f, 00.05f, -147.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
@@ -1925,43 +1921,36 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		for(int i = 0; i < PuentePosition.size(); i++){
 			AbstractModel::OBB puenteCollider;
 			glm::mat4 modelMatrixColliderPuente = glm::mat4(1.0);
-			modelMatrixColliderPuente = glm::translate(matrixModelBasePuente, PuentePosition[i]+glm::vec3(-0.45,0.630,-0.750));
-			//modelMatrixColliderPuente = glm::translate(matrixModelBasePuente, PuentePosition[i]+glm::vec3(-0.45,0.630,-0.60));
-			//modelMatrixColliderPuente = glm::rotate(modelMatrixColliderPuente, 
-			//	glm::radians(180.0f), glm::vec3(0,0, 01));
+			modelMatrixColliderPuente = glm::translate(matrixModelBasePuente, PuentePosition[i]+glm::vec3(0.0,0.70,01.0));
 			modelMatrixColliderPuente = glm::rotate(modelMatrixColliderPuente, 
 				glm::radians(90.0f), glm::vec3(1, 0, 0));
-			addOrUpdateColliders(collidersOBB, "puente-" + std::to_string(i), puenteCollider,
+			addOrUpdateColliders(collidersOBB, "puenteder-" + std::to_string(i), puenteCollider,
 				modelMatrixColliderPuente);
 			puenteCollider.u = glm::quat_cast(modelMatrixColliderPuente);
-			modelMatrixColliderPuente = glm::scale(modelMatrixColliderPuente, glm::vec3(7.5,0.5,9.1));
+			modelMatrixColliderPuente = glm::scale(modelMatrixColliderPuente, glm::vec3(0,05.5,9.10));
 			modelMatrixColliderPuente = glm::translate(modelMatrixColliderPuente, modelBasePuente.getObb().c);
 			puenteCollider.c = modelMatrixColliderPuente[3];
-			puenteCollider.e = modelBasePuente.getObb().e*glm::vec3(7.50f,0.5f,9.10f);
+			puenteCollider.e = modelBasePuente.getObb().e*glm::vec3(0.0f,05.5f,9.10f);
 			//puenteCollider.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
-			std::get<0>(collidersOBB.find("puente-" + std::to_string(i))->second) = puenteCollider;
+			std::get<0>(collidersOBB.find("puenteder-" + std::to_string(i))->second) = puenteCollider;
 		}
 
-		//Colliders Islas
-		//Colliders puentes 
-		for(int i = 0; i < IslaPosition.size(); i++){
-			AbstractModel::OBB islaCollider;
-			glm::mat4 modelMatrixColliderIsla = glm::mat4(1.0);
-			modelMatrixColliderIsla = glm::translate(matrixModelIsle, IslaPosition[i]+glm::vec3(-0.4,0.20,0.10152));
-			//modelMatrixColliderIsla = glm::translate(matrixModelIsle, PuentePosition[i]+glm::vec3(-0.45,0.630,-0.750));
-			//modelMatrixColliderIsla = glm::rotate(modelMatrixColliderIsla, 
-			//	glm::radians(180.0f), glm::vec3(0,0, 01));
-			modelMatrixColliderIsla = glm::rotate(modelMatrixColliderIsla, 
+		//Colliders puentes izq
+		for(int i = 0; i < PuentePosition.size(); i++){
+			AbstractModel::OBB puenteCollider2;
+			glm::mat4 modelMatrixColliderPuente2 = glm::mat4(1.0);
+			modelMatrixColliderPuente2 = glm::translate(matrixModelBasePuente, PuentePosition[i]+glm::vec3(-0.90,0.7,1.0));
+			modelMatrixColliderPuente2 = glm::rotate(modelMatrixColliderPuente2, 
 				glm::radians(90.0f), glm::vec3(1, 0, 0));
-			addOrUpdateColliders(collidersOBB, "isla-" + std::to_string(i), islaCollider,
-				modelMatrixColliderIsla);
-			islaCollider.u = glm::quat_cast(modelMatrixColliderIsla);
-			modelMatrixColliderIsla = glm::scale(modelMatrixColliderIsla, glm::vec3(2.80,0,5.5));
-			modelMatrixColliderIsla = glm::translate(modelMatrixColliderIsla, modelIsle.getObb().c);
-			islaCollider.c = modelMatrixColliderIsla[3];
-			islaCollider.e = modelIsle.getObb().e* glm::vec3(2.80,0,5.5);
-			//islaCollider.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
-			std::get<0>(collidersOBB.find("isla-" + std::to_string(i))->second) = islaCollider;
+			addOrUpdateColliders(collidersOBB, "picas-" + std::to_string(i), puenteCollider2,
+				modelMatrixColliderPuente2);
+			puenteCollider2.u = glm::quat_cast(modelMatrixColliderPuente2);
+			modelMatrixColliderPuente2 = glm::scale(modelMatrixColliderPuente2, glm::vec3(0,05.5,9.10));
+			modelMatrixColliderPuente2 = glm::translate(modelMatrixColliderPuente2, modelBasePuente.getObb().c);
+			puenteCollider2.c = modelMatrixColliderPuente2[3];
+			puenteCollider2.e = modelBasePuente.getObb().e*glm::vec3(0.0f,05.5f,9.10f);
+			//puenteCollider2.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+			std::get<0>(collidersOBB.find("picas-" + std::to_string(i))->second) = puenteCollider2;
 		}
 
 		//Collider del la rock
@@ -2000,7 +1989,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			matrixCollider = glm::scale(matrixCollider, std::get<0>(it->second).e * 2.0f);
 			boxCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
 			boxCollider.enableWireMode();
-			boxCollider.render(matrixCollider);
+			//boxCollider.render(matrixCollider);
 		}
 
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator it =
@@ -2010,7 +1999,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			matrixCollider = glm::scale(matrixCollider, glm::vec3(std::get<0>(it->second).ratio * 2.0f));
 			sphereCollider.setColor(glm::vec4(0.1, 0.1, 0.1, 0.1));
 			sphereCollider.enableWireMode();
-			sphereCollider.render(matrixCollider);
+			//sphereCollider.render(matrixCollider);
 		}
 
 		animationHeroeIndex = 0;
@@ -2043,8 +2032,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				collidersSBB.begin(); jt != collidersSBB.end(); jt++) {
 				if (it != jt && testSphereSphereIntersection(
 					std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay collision entre " << it->first <<
-						" y el modelo " << jt->first << std::endl;
+					//std::cout << "Hay collision entre " << it->first << " y el modelo " << jt->first << std::endl;
 					isCollision = true;
 				}
 			}
@@ -2060,11 +2048,11 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
 				if (it != jt && 
 					testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay colision entre " << it->first << " y el modelo" <<
-					//	jt->first << std::endl;
-					//isColision = true;
-					isJump = false;
-					modelMatrixHeroe[3][1] = modelMatrixHeroe[3][1];
+					//std::cout << "Hay colision entre " << it->first << " y el modelo" <<	jt->first << std::endl;
+					isColision = true;
+					//isOn = true;
+					//isJump = false;
+					//modelMatrixHeroe[3][1] = modelMatrixHeroe[3][1];
 				}
 			}
 			addOrUpdateCollisionDetection(collisionDetection, it->first, isColision);
@@ -2078,8 +2066,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt =
 				collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
 				if (testSphereOBox(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay colision del " << it->first << " y el modelo" <<
-						jt->first << std::endl;
+					//std::cout << "Hay colision del " << it->first << " y el modelo" <<	jt->first << std::endl;
 					isCollision = true;
 					addOrUpdateCollisionDetection(collisionDetection, jt->first, true);
 				}
@@ -2088,14 +2075,9 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		}
 
 		std::map<std::string, bool>::iterator itCollision;
-		for (itCollision = collisionDetection.begin(); 
-			itCollision != collisionDetection.end(); itCollision++) {
-			std::map<std::string, std::tuple<AbstractModel::SBB, 
-				glm::mat4, glm::mat4>>::iterator sbbBuscado = 
-				collidersSBB.find(itCollision->first);
-			std::map<std::string, std::tuple<AbstractModel::OBB,
-				glm::mat4, glm::mat4>>::iterator obbBuscado =
-				collidersOBB.find(itCollision->first);
+		for (itCollision = collisionDetection.begin(); itCollision != collisionDetection.end(); itCollision++) {
+			std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator sbbBuscado = collidersSBB.find(itCollision->first);
+			std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator obbBuscado = collidersOBB.find(itCollision->first);
 			if (sbbBuscado != collidersSBB.end()) {
 				if (!itCollision->second) 
 					addOrUpdateColliders(collidersSBB, itCollision->first);
