@@ -273,10 +273,7 @@ std::vector<glm::vec3> IslaPosition = {
 	glm::vec3(-6.0, 21.0, 6.0),
 	glm::vec3(-8.0, 15.0, 7.5),
 	glm::vec3(-6.0, 8.0, 9.0),
-	glm::vec3(0.0, 5.0, 10.0),
-	glm::vec3(7.0, 7.0, 11.5),
-	glm::vec3(8.0, 12.0, 12.5),
-	glm::vec3(7.0, 18.0, 13.5),	
+	
 };
 //
 std::vector<glm::vec3> ArcoPosition = {
@@ -1611,7 +1608,7 @@ void applicationLoop() {
 	matrixModelArc = glm::translate(matrixModelArc, glm::vec3(arco1x, arco1y, arco1z));
 	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
 
-	matrixModelTower = glm::scale(matrixModelTower, glm::vec3(9.0, 9.0, 9.0));
+	matrixModelTower = glm::scale(matrixModelTower, glm::vec3(9.0, 4.0, 9.0));
 	matrixModelTower = glm::translate(matrixModelTower, glm::vec3(5.0, 0.0, -23.0));
 	matrixModelTower = glm::rotate(matrixModelTower, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
