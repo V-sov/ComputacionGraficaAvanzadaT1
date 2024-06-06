@@ -142,7 +142,7 @@ Model modelFaro;
 Model heroeModelAnimate;
 
 // Terrain model instance
-Terrain terrain(-1, -1, 250, 10, "../Textures/heightmap3.png");
+Terrain terrain(-1, -1, 350, 87.0, "../Textures/heightmap5.png");
 
 ShadowBox * shadowBox;
 
