@@ -1301,27 +1301,36 @@ bool processInput(bool continueApplication) {
 		GLFWgamepadstate gamepadState;
 		if (isThirdCamera)
 		{
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			// Rotación con el mouse
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || 
+				(fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[2]) > 0.1f || fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[3]) > 0.1f))
 				camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+
 		}
 		else
 		{
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-				cameraFP->moveFrontCamera(true, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-				cameraFP->moveFrontCamera(false, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-				cameraFP->moveRightCamera(false, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-				cameraFP->moveRightCamera(true, deltaTime);
-			if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS)
+			// Rotación con el mouse o con el joystick izquierdo
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || 
+				(fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[2]) > 0.1f || fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[3]) > 0.1f))
 				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
+
+			// Movimiento con teclas WASD o con el joystick izquierdo
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[1] < -0.1f)
+				cameraFP->moveFrontCamera(true, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[1] > 0.1f)
+				cameraFP->moveFrontCamera(false, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[0] < -0.1f)
+				cameraFP->moveRightCamera(false, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[0] > 0.1f)
+				cameraFP->moveRightCamera(true, deltaTime);
 		}
-		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+
+		// Cambio de cámara al presionar el joystick derecho
+		if (glfwGetJoystickButton(GLFW_JOYSTICK_1, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) == GLFW_PRESS)
 		{
 			changingCamera = true;
 		}
-		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_RELEASE)
+		if (glfwGetJoystickButton(GLFW_JOYSTICK_1, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) == GLFW_RELEASE)
 		{
 			if (changingCamera)
 			{
@@ -1330,7 +1339,7 @@ bool processInput(bool continueApplication) {
 			}
 			changingCamera = false;
 		}
-			
+	
 		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		//	camera->mouseMoveCamera(0, offsetY, deltaTime);
 		offsetX = 0;
