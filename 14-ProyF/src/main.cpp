@@ -1496,6 +1496,7 @@ void renderSolidScene(){
 	shaderTerrain.setInt("blendMapTexture", 4);
 	shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(80, 80)));
 	terrain.setPosition(glm::vec3(100, 0, 100));
+	terrain.enableWireMode();
 	terrain.render();
 	shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1656,7 +1657,7 @@ void applicationLoop() {
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	
  	//modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
- 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -130.0f));
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -190.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
@@ -1883,7 +1884,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			if(warco == 0 ){
 				std::cout << "x y z = " << arco1x  << " " << arco1y << " "  << arco1z << std::endl;
 				modelMatrixHeroe = glm::mat4(1);
-				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 35.0f));
+				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -150.0f));
 				modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, 0));
 				vida = vida-1;
@@ -2061,6 +2062,123 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			cubo5.e = modelBasePuente.getObb().e*glm::vec3(20,0.05,01.70);
 			//cubo5.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
 
+		AbstractModel::OBB cubo6;
+		glm::mat4 modelMatrixColliderCube6 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube6 = glm::translate(matrixModelCube, glm::vec3(012.0,10.60,-157.40));
+			//modelMatrixColliderCube6 = glm::rotate(modelMatrixColliderCube6, glm::radians(27.0f), glm::vec3(1, 0, 0));
+			//modelMatrixColliderCube6 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-6", cubo6,modelMatrixColliderCube6);
+			cubo6.u = glm::quat_cast(modelMatrixColliderCube6);
+			modelMatrixColliderCube6 = glm::scale(modelMatrixColliderCube6, glm::vec3(20,0.05,02.60));
+			modelMatrixColliderCube6 = glm::translate(modelMatrixColliderCube6, modelBasePuente.getObb().c);
+			cubo6.c = modelMatrixColliderCube6[3];
+			cubo6.e = modelBasePuente.getObb().e*glm::vec3(20,0.05,02.60);
+			//cubo6.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo7;
+		glm::mat4 modelMatrixColliderCube7 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube7 = glm::translate(matrixModelCube, glm::vec3(012.0,13.600,-172.70));
+			modelMatrixColliderCube7 = glm::rotate(modelMatrixColliderCube7, glm::radians(35.0f), glm::vec3(1, 0, 0));
+			//modelMatrixColliderCube7 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-7", cubo7,modelMatrixColliderCube7);
+			cubo7.u = glm::quat_cast(modelMatrixColliderCube7);
+			modelMatrixColliderCube7 = glm::scale(modelMatrixColliderCube7, glm::vec3(20,0.05,02.40));
+			modelMatrixColliderCube7 = glm::translate(modelMatrixColliderCube7, modelBasePuente.getObb().c);
+			cubo7.c = modelMatrixColliderCube7[3];
+			cubo7.e = modelBasePuente.getObb().e*glm::vec3(20,0.05,02.40);
+			//cubo7.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo8;
+		glm::mat4 modelMatrixColliderCube8 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube8 = glm::translate(matrixModelCube, glm::vec3(021.0,15.800,-180.70));
+			modelMatrixColliderCube8 = glm::rotate(modelMatrixColliderCube8, glm::radians(25.0f), glm::vec3(0, 0, 1));
+			//modelMatrixColliderCube8 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-8", cubo8,modelMatrixColliderCube8);
+			cubo8.u = glm::quat_cast(modelMatrixColliderCube8);
+			modelMatrixColliderCube8 = glm::scale(modelMatrixColliderCube8, glm::vec3(07.0,0.05,06.40));
+			modelMatrixColliderCube8 = glm::translate(modelMatrixColliderCube8, modelBasePuente.getObb().c);
+			cubo8.c = modelMatrixColliderCube8[3];
+			cubo8.e = modelBasePuente.getObb().e*glm::vec3(7,0.05,06.40);
+			//cubo8.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo9;
+		glm::mat4 modelMatrixColliderCube9 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube9 = glm::translate(matrixModelCube, glm::vec3(037.0,19.800,-190.70));
+			//modelMatrixColliderCube9 = glm::rotate(modelMatrixColliderCube9, glm::radians(25.0f), glm::vec3(0, 0, 1));
+			//modelMatrixColliderCube9 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-9", cubo9,modelMatrixColliderCube9);
+			cubo9.u = glm::quat_cast(modelMatrixColliderCube9);
+			modelMatrixColliderCube9 = glm::scale(modelMatrixColliderCube9, glm::vec3(07.0,0.05,05.40));
+			modelMatrixColliderCube9 = glm::translate(modelMatrixColliderCube9, modelBasePuente.getObb().c);
+			cubo9.c = modelMatrixColliderCube9[3];
+			cubo9.e = modelBasePuente.getObb().e*glm::vec3(7,0.05,05.40);
+			//cubo9.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo10;
+		glm::mat4 modelMatrixColliderCube10 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube10 = glm::translate(matrixModelCube, glm::vec3(034.0,21.800,-210.70));
+			//modelMatrixColliderCube10 = glm::rotate(modelMatrixColliderCube10, glm::radians(25.0f), glm::vec3(0, 0, 1));
+			//modelMatrixColliderCube10 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-10", cubo10,modelMatrixColliderCube10);
+			cubo10.u = glm::quat_cast(modelMatrixColliderCube10);
+			modelMatrixColliderCube10 = glm::scale(modelMatrixColliderCube10, glm::vec3(09.0,0.05,05.40));
+			modelMatrixColliderCube10 = glm::translate(modelMatrixColliderCube10, modelBasePuente.getObb().c);
+			cubo10.c = modelMatrixColliderCube10[3];
+			cubo10.e = modelBasePuente.getObb().e*glm::vec3(9.0,0.05,05.40);
+			//cubo10.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo11;
+		glm::mat4 modelMatrixColliderCube11 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube11 = glm::translate(matrixModelCube, glm::vec3(025.0,23.800,-226.70));
+			//modelMatrixColliderCube11 = glm::rotate(modelMatrixColliderCube11, glm::radians(25.0f), glm::vec3(0, 0, 1));
+			//modelMatrixColliderCube11 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-11", cubo11,modelMatrixColliderCube11);
+			cubo11.u = glm::quat_cast(modelMatrixColliderCube11);
+			modelMatrixColliderCube11 = glm::scale(modelMatrixColliderCube11, glm::vec3(07.0,0.05,04.40));
+			modelMatrixColliderCube11 = glm::translate(modelMatrixColliderCube11, modelBasePuente.getObb().c);
+			cubo11.c = modelMatrixColliderCube11[3];
+			cubo11.e = modelBasePuente.getObb().e*glm::vec3(7,0.05,04.40);
+			//cubo11.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo12;
+		glm::mat4 modelMatrixColliderCube12 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube12 = glm::translate(matrixModelCube, glm::vec3(000.0,26.800,-235.70));
+			//modelMatrixColliderCube12 = glm::rotate(modelMatrixColliderCube12, glm::radians(25.0f), glm::vec3(0, 0, 1));
+			//modelMatrixColliderCube12 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-12", cubo12,modelMatrixColliderCube12);
+			cubo12.u = glm::quat_cast(modelMatrixColliderCube12);
+			modelMatrixColliderCube12 = glm::scale(modelMatrixColliderCube12, glm::vec3(07.0,0.05,06.40));
+			modelMatrixColliderCube12 = glm::translate(modelMatrixColliderCube12, modelBasePuente.getObb().c);
+			cubo12.c = modelMatrixColliderCube12[3];
+			cubo12.e = modelBasePuente.getObb().e*glm::vec3(7,0.05,06.40);
+			//cubo12.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo13;
+		glm::mat4 modelMatrixColliderCube13 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube13 = glm::translate(matrixModelCube, glm::vec3(-15.0,29.800,-219.70));
+			//modelMatrixColliderCube13 = glm::rotate(modelMatrixColliderCube13, glm::radians(25.0f), glm::vec3(0, 0, 1));
+			//modelMatrixColliderCube13 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-13", cubo13,modelMatrixColliderCube13);
+			cubo13.u = glm::quat_cast(modelMatrixColliderCube13);
+			modelMatrixColliderCube13 = glm::scale(modelMatrixColliderCube13, glm::vec3(07.0,0.05,06.40));
+			modelMatrixColliderCube13 = glm::translate(modelMatrixColliderCube13, modelBasePuente.getObb().c);
+			cubo13.c = modelMatrixColliderCube13[3];
+			cubo13.e = modelBasePuente.getObb().e*glm::vec3(7,0.05,06.40);
+			//cubo13.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo14;
+		glm::mat4 modelMatrixColliderCube14 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube14 = glm::translate(matrixModelCube, glm::vec3(-15.0,34.800,-200.70));
+			//modelMatrixColliderCube14 = glm::rotate(modelMatrixColliderCube14, glm::radians(25.0f), glm::vec3(0, 0, 1));
+			//modelMatrixColliderCube14 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-14", cubo14,modelMatrixColliderCube14);
+			cubo14.u = glm::quat_cast(modelMatrixColliderCube14);
+			modelMatrixColliderCube14 = glm::scale(modelMatrixColliderCube14, glm::vec3(07.0,0.05,06.40));
+			modelMatrixColliderCube14 = glm::translate(modelMatrixColliderCube14, modelBasePuente.getObb().c);
+			cubo14.c = modelMatrixColliderCube14[3];
+			cubo14.e = modelBasePuente.getObb().e*glm::vec3(7,0.05,06.40);
+			//cubo14.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
 		//Collider del la rock
 		AbstractModel::SBB rockCollider;
 		glm::mat4 modelMatrixColliderRock= glm::mat4(matrixModelRock);
@@ -2149,9 +2267,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 					isColision = true;
 
 				//	if((it->first.find("cubo-") && jt->first == "heroe")|| (jt->first.find("cubo-") && it->first == "heroe")){
-					if(it->first.find("cubo-") || jt->first.find("cubo-") ){
-
-						//isColision = false;
+					if(it->first.find("cubo-")|| jt->first.find("cubo-") ){
 						accionChec();
 					}
 				}
@@ -2273,6 +2389,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				sourcesPlay[i] = false;
 			}
 		}
+		isOn = true;
 
 	}
 }
