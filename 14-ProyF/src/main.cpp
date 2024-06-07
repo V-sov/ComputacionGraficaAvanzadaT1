@@ -2291,7 +2291,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		source2Pos[2] = matrixModelArc[3].z;
 		alSourcefv(source[2], AL_POSITION, source2Pos);
 
-		// Listener for the Thris person camera
+		
 		listenerPos[0] = modelMatrixHeroe[3].x;
 		listenerPos[1] = modelMatrixHeroe[3].y;
 		listenerPos[2] = modelMatrixHeroe[3].z;
