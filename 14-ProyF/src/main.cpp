@@ -1544,17 +1544,7 @@ void renderSolidScene(){
 		modelFaro.setOrientation(glm::vec3(0, FaroOrientation[i], 0));
 		modelFaro.render();
 	}
-	for(int i = 0; i < lamp2Position.size(); i++){
-		lamp2Position[i].y = terrain.getHeightTerrain(lamp2Position[i].x, lamp2Position[i].z);
-		modelLamp2.setPosition(lamp2Position[i]);
-		modelLamp2.setScale(glm::vec3(0.5));
-		modelLamp2.setOrientation(glm::vec3(0, lamp2Orientation[i], 0));
-		//modelLamp2.render();
-		modelLampPost2.setPosition(lamp2Position[i]);
-		modelLampPost2.setScale(glm::vec3(0.5));
-		modelLampPost2.setOrientation(glm::vec3(0, lamp2Orientation[i], 0));
-		//modelLampPost2.render();
-	}
+	
 
 	//Render Puente
 	for(int i = 0; i < PuentePosition.size(); i++){
