@@ -197,7 +197,8 @@ bool saveFrame = false, availableSave = true;
 std::ofstream myfile;
 std::string fileName = "";
 bool record = false;
-
+//Listener var
+bool CListener = true;
 // Joints interpolations Dart Lego
 std::vector<std::vector<float>> keyFramesDartJoints;
 std::vector<std::vector<glm::mat4>> keyFramesDart;
