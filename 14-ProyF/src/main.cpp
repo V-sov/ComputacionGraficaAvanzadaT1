@@ -1223,7 +1223,6 @@ bool processInput(bool continueApplication) {
 			}
 		else{
             textureActivaID = textureMuerteID;
-			std::cout << "entra Aqui?"<< iniciaPartida <<"\n";
 		}
     }
     // Pantalla STOP
@@ -1497,7 +1496,7 @@ void renderSolidScene(){
 	shaderTerrain.setInt("blendMapTexture", 4);
 	shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(80, 80)));
 	terrain.setPosition(glm::vec3(100, 0, 100));
-	//terrain.render();
+	terrain.render();
 	shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
@@ -1656,8 +1655,9 @@ void applicationLoop() {
 	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(15.5, 4.0, -55.0));
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	
- 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(30.0f, 00.05f, -147.0f));
-	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
+ 	//modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -130.0f));
+	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
 
@@ -1883,16 +1883,16 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			if(warco == 0 ){
 				std::cout << "x y z = " << arco1x  << " " << arco1y << " "  << arco1z << std::endl;
 				modelMatrixHeroe = glm::mat4(1);
-				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(arco1x+13, arco1y, arco1z));
-				modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
+				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 35.0f));
+				modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, 0));
 				vida = vida-1;
 				chec = false;
 			}
 		}else if(vida == 0 && muerte && checkRelease){
 			modelMatrixHeroe = glm::mat4(1);
- 			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(13.0f, 0.05f, -5.0f));
-			modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-20.0f), glm::vec3(0, 1, 0));
+ 			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
+			modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, 0));
 		}
 		
@@ -1949,7 +1949,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		 *******************************************/
 
 		/************Render de imagen de frente Texto Muerte**************/
-		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		/*shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
 		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureActivaID);
@@ -1961,7 +1961,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			std::cout << textureActivaID;
 			modelTextMuerte->modFuente(120, 0.850f, 0.850f, 0.850f, 1.0f);
 			modelTextMuerte->render("GAME OVER",-0.78,0.0);
-		}
+		}*/
 		
 		//Colliders puentes 
 		for(int i = 0; i < PuentePosition.size(); i++){
@@ -2001,15 +2001,65 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 
 		AbstractModel::OBB cube;
 		glm::mat4 modelMatrixColliderCube = glm::mat4(matrixModelCube);
-			modelMatrixColliderCube = glm::translate(matrixModelCube, glm::vec3(012.0,0.0,2.8));
+			modelMatrixColliderCube = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,2.8));
 			//modelMatrixColliderCube = glm::rotate(modelMatrixColliderCube, glm::radians(90.0f), glm::vec3(1, 0, 0));
-			addOrUpdateColliders(collidersOBB, "cubo-", cube,modelMatrixColliderCube);
+			addOrUpdateColliders(collidersOBB, "cubo-1", cube,modelMatrixColliderCube);
 			cube.u = glm::quat_cast(modelMatrixColliderCube);
 			modelMatrixColliderCube = glm::scale(modelMatrixColliderCube, glm::vec3(20,2,8.8));
 			modelMatrixColliderCube = glm::translate(modelMatrixColliderCube, modelBasePuente.getObb().c);
 			cube.c = modelMatrixColliderCube[3];
 			cube.e = modelBasePuente.getObb().e*glm::vec3(20,2,8.8);
 			//cube.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cube2;
+		glm::mat4 modelMatrixColliderCube2 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube2 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-20.5));
+			//modelMatrixColliderCube2 = glm::rotate(modelMatrixColliderCube2, glm::radians(90.0f), glm::vec3(1, 0, 0));
+			addOrUpdateColliders(collidersOBB, "cubo-2", cube2,modelMatrixColliderCube2);
+			cube2.u = glm::quat_cast(modelMatrixColliderCube2);
+			modelMatrixColliderCube2 = glm::scale(modelMatrixColliderCube2, glm::vec3(20,2,8.8));
+			modelMatrixColliderCube2 = glm::translate(modelMatrixColliderCube2, modelBasePuente.getObb().c);
+			cube2.c = modelMatrixColliderCube2[3];
+			cube2.e = modelBasePuente.getObb().e*glm::vec3(20,2,8.8);
+			//cube2.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cube3;
+		glm::mat4 modelMatrixColliderCube3 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube3 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-55.6));
+			//modelMatrixColliderCube3 = glm::rotate(modelMatrixColliderCube3, glm::radians(90.0f), glm::vec3(1, 0, 0));
+			addOrUpdateColliders(collidersOBB, "cubo-3", cube3,modelMatrixColliderCube3);
+			cube3.u = glm::quat_cast(modelMatrixColliderCube3);
+			modelMatrixColliderCube3 = glm::scale(modelMatrixColliderCube3, glm::vec3(20,2,8.7));
+			modelMatrixColliderCube3 = glm::translate(modelMatrixColliderCube3, modelBasePuente.getObb().c);
+			cube3.c = modelMatrixColliderCube3[3];
+			cube3.e = modelBasePuente.getObb().e*glm::vec3(20,2,8.7);
+			//cube3.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cube4;
+		glm::mat4 modelMatrixColliderCube4 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube4 = glm::translate(matrixModelCube, glm::vec3(012.0,7.0,-102.280));
+			modelMatrixColliderCube4 = glm::rotate(modelMatrixColliderCube4, glm::radians(27.0f), glm::vec3(1, 0, 0));
+			//modelMatrixColliderCube4 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-4", cube4,modelMatrixColliderCube4);
+			cube4.u = glm::quat_cast(modelMatrixColliderCube4);
+			modelMatrixColliderCube4 = glm::scale(modelMatrixColliderCube4, glm::vec3(20,2,6.0));
+			modelMatrixColliderCube4 = glm::translate(modelMatrixColliderCube4, modelBasePuente.getObb().c);
+			cube4.c = modelMatrixColliderCube4[3];
+			cube4.e = modelBasePuente.getObb().e*glm::vec3(20,2,6.0);
+			//cube4.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
+
+		AbstractModel::OBB cubo5;
+		glm::mat4 modelMatrixColliderCube5 = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube5 = glm::translate(matrixModelCube, glm::vec3(012.0,10.60,-106.40));
+			//modelMatrixColliderCube5 = glm::rotate(modelMatrixColliderCube5, glm::radians(27.0f), glm::vec3(1, 0, 0));
+			//modelMatrixColliderCube5 = glm::translate(matrixModelCube, glm::vec3(012.0,5.90,-103.0));
+			addOrUpdateColliders(collidersOBB, "cubo-5", cubo5,modelMatrixColliderCube5);
+			cubo5.u = glm::quat_cast(modelMatrixColliderCube5);
+			modelMatrixColliderCube5 = glm::scale(modelMatrixColliderCube5, glm::vec3(20,0.05,01.70));
+			modelMatrixColliderCube5 = glm::translate(modelMatrixColliderCube5, modelBasePuente.getObb().c);
+			cubo5.c = modelMatrixColliderCube5[3];
+			cubo5.e = modelBasePuente.getObb().e*glm::vec3(20,0.05,01.70);
+			//cubo5.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
 
 		//Collider del la rock
 		AbstractModel::SBB rockCollider;
@@ -2027,12 +2077,12 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				glm::radians(-90.0f), glm::vec3(1, 0, 0));
 		// Set the orientation of collider before doing the scale
 		heroeCollider.u = glm::quat_cast(modelmatrixColliderHeroe);
-		modelmatrixColliderHeroe = glm::scale(modelmatrixColliderHeroe, glm::vec3(0.5,0.3,0.02));
+		modelmatrixColliderHeroe = glm::scale(modelmatrixColliderHeroe, glm::vec3(0.3,0.15,0.01));
 		modelmatrixColliderHeroe = glm::translate(modelmatrixColliderHeroe,
 				glm::vec3(heroeModelAnimate.getObb().c.x,
 						heroeModelAnimate.getObb().c.y,
 						heroeModelAnimate.getObb().c.z));
-		heroeCollider.e = heroeModelAnimate.getObb().e * glm::vec3(0.5f,0.3f,0.02f);
+		heroeCollider.e = heroeModelAnimate.getObb().e * glm::vec3(0.3f,0.15f,0.01f);
 		heroeCollider.c = glm::vec3(modelmatrixColliderHeroe[3]);
 		addOrUpdateColliders(collidersOBB, "heroe", heroeCollider, modelMatrixHeroe);
 
@@ -2087,6 +2137,8 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		for (std::map<std::string,
 			std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator it =
 			collidersOBB.begin(); it != collidersOBB.end(); it++) {
+			int i = 0;
+			int j = 0;
 			bool isColision = false;
 			for (std::map<std::string,
 				std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt =
@@ -2095,7 +2147,10 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 					testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
 					std::cout << "Hay colision entre " << it->first << " y el modelo" <<	jt->first << std::endl;
 					isColision = true;
-					if(it->first == "cubo-" || jt->first == "cubo-"){
+
+				//	if((it->first.find("cubo-") && jt->first == "heroe")|| (jt->first.find("cubo-") && it->first == "heroe")){
+					if(it->first.find("cubo-") || jt->first.find("cubo-") ){
+
 						//isColision = false;
 						accionChec();
 					}
