@@ -84,9 +84,8 @@ Shader shaderDepth;
 
 Shader shaderViewDepth;
 
-std::shared_ptr<Camera> camera(new ThirdPersonCamera()); //Intancia de la camara en tercera persona
-std::shared_ptr<FirstPersonCamera> cameraFP(new FirstPersonCamera());
-float distanceFromTarget = 15.0;
+std::shared_ptr<Camera> camera(new FirstPersonCamera()); //Intancia de la camara en tercera persona
+float distanceFromTarget = 7.0;
 
 //Botón de pausa
 bool pause = false;
@@ -99,8 +98,6 @@ bool ctrlRelease = true;
 bool muerteRelease = true;
 bool controlRelease = true;
 bool checkRelease = true;
-bool isThirdCamera = true;
-bool changingCamera = false;
 
 //Valores para checkpoint
 // Pos. Arcos
@@ -1305,66 +1302,14 @@ bool processInput(bool continueApplication) {
             }
         }
 		GLFWgamepadstate gamepadState;
-		if (!isThirdCamera) {
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-				camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
 
-			// Integración de la rotación del joystick derecho
-			if (glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState) == GLFW_PRESS) {
-				float rightThumbX = gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
-				float rightThumbY = gamepadState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
-				if (fabs(rightThumbX) > 0.1 || fabs(rightThumbY) > 0.1) {
-					// Lógica para manejar la rotación del joystick derecho
-					// Por ejemplo:
-					camera->mouseMoveCamera(rightThumbX, rightThumbY, deltaTime);
-				}
-			}
-		} else {
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-				cameraFP->moveFrontCamera(true, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-				cameraFP->moveFrontCamera(false, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-				cameraFP->moveRightCamera(false, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-				cameraFP->moveRightCamera(true, deltaTime);
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
-		}
+		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			camera->mouseMoveCamera(offsetX, 0.0, deltaTime);
+		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+			camera->mouseMoveCamera(0.0, offsetY, deltaTime);
 
-		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS || (glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState) == GLFW_PRESS &&
-			gamepadState.buttons[GLFW_GAMEPAD_BUTTON_LEFT_THUMB] == GLFW_PRESS)) {
-			changingCamera = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_RELEASE || (glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState) == GLFW_PRESS &&
-			gamepadState.buttons[GLFW_GAMEPAD_BUTTON_LEFT_THUMB] == GLFW_RELEASE)) {
-			if (changingCamera) {
-				isThirdCamera = !isThirdCamera;
-				std::cout << "Changed Camera" << std::endl;
-			}
-			changingCamera = false;
-		}
-        offsetX = 0;
-        offsetY = 0;
-
-        // Seleccionar modelo
-        if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
-            enableCountSelected = false;
-            modelSelected++;
-            if (modelSelected > 4)
-                modelSelected = 0;
-            if (modelSelected == 1)
-                modelSelected = 0;
-            if (modelSelected == 2)
-                modelSelected = 0;
-            if (modelSelected == 3)
-                modelSelected = 0;
-            if (modelSelected == 4)
-
-            std::cout << "modelSelected: " << modelSelected << std::endl;
-        } else if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) {
-            enableCountSelected = true;
-        }
+		offsetX = 0;
+		offsetY = 0;
 
         // Guardar key frames
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
@@ -1415,12 +1360,6 @@ bool processInput(bool continueApplication) {
         } else if (isJump) {
             animationHeroeIndex = 1;
         }
-
-        glm::vec3 heroPosition = glm::vec3(modelMatrixHeroe[3]);
-        glm::vec3 cameraOffset = glm::vec3(-5.0f, 2.0f, 0.0f); // Ajusta estos valores según sea necesario
-        glm::vec3 fixedCameraPosition = heroPosition + cameraOffset;
-        camera->setPosition(fixedCameraPosition);
-        camera->setCameraTarget(heroPosition);
     }
 
     glfwPollEvents();
@@ -2193,38 +2132,17 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			}
 		}
 
+		/*****************/
+		// Camara de Mayow en primera persona
+		// Obtener la posición de Mayow
+		glm::vec3 heroPositionCamara = glm::vec3(modelMatrixHeroe[3]);
+		float yOffset = 5.0f;
+		glm::vec3 cameraPosition = heroPositionCamara + glm::vec3(0.0f, yOffset, -1.0f);
+		// Establecer la posición de la cámara
+		camera->setPosition(cameraPosition);
+
 		std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::
 			iterator itSBB;
-		/*std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::
-			iterator itOBB;
-		for (itOBB = collidersOBB.begin(); itOBB != collidersOBB.end(); itOBB++) {
-			if (testRayOBB(ori, targetRay, std::get<0>(itOBB->second))) {
-				std::cout << "Collision del rayo con el modelo " << itOBB->first
-					<< std::endl;
-			}
-		}*/
-
-		// Esto es para ilustrar la transformacion inversa de los coliders
-		/*glm::vec3 cinv = glm::inverse(heroeCollider.u) * glm::vec4(rockCollider.c, 1.0);
-		glm::mat4 invColliderS = glm::mat4(1.0);
-		invColliderS = glm::translate(invColliderS, cinv);
-		invColliderS =  invColliderS * glm::mat4(heroeCollider.u);
-		invColliderS = glm::scale(invColliderS, glm::vec3(rockCollider.ratio * 2.0, rockCollider.ratio * 2.0, rockCollider.ratio * 2.0));
-		sphereCollider.setColor(glm::vec4(1.0, 1.0, 0.0, 1.0));
-		sphereCollider.enableWireMode();
-		sphereCollider.render(invColliderS);
-		glm::vec3 cinv2 = glm::inverse(heroeCollider.u) * glm::vec4(heroeCollider.c, 1.0);
-		glm::mat4 invColliderB = glm::mat4(1.0);
-		invColliderB = glm::translate(invColliderB, cinv2);
-		invColliderB = glm::scale(invColliderB, heroeCollider.e * 2.0f);
-		boxCollider.setColor(glm::vec4(1.0, 1.0, 0.0, 1.0)); f
-		boxCollider.enableWireMode();
-		boxCollider.render(invColliderB);
-		// Se regresa el color blanco
-		sphereCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
-		boxCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));*/
-		
-		
 
 		glfwSwapBuffers(window);
 		
@@ -2243,29 +2161,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		source2Pos[1] = matrixModelArc[3].y;
 		source2Pos[2] = matrixModelArc[3].z;
 		alSourcefv(source[2], AL_POSITION, source2Pos);
-			
-		// listenerPos[0] = modelMatrixMayow[3].x;
-		// listenerPos[1] = modelMatrixMayow[3].y;
-		// listenerPos[2] = modelMatrixMayow[3].z;
-		// alListenerfv(AL_POSITION, listenerPos);
-		//Esto es para la cámara FPC
-		listenerPos[0] = camera->getPosition().x;
-		listenerPos[1] = camera->getPosition().y;
-		listenerPos[2] = camera->getPosition().z;
-		alListenerfv(AL_POSITION, listenerPos);
 
-		// glm::vec3 upModel = modelMatrixMayow[1];
-		// glm::vec3 frontModel = modelMatrixMayow[2];
-		//Esto es para la FPC
-		glm::vec3 upModel = camera->getUp();
-		glm::vec3 frontModel = camera->getFront();
-		listenerOri[0] = frontModel.x;
-		listenerOri[1] = frontModel.y;
-		listenerOri[2] = frontModel.z;
-		listenerOri[3] = upModel.x;
-		listenerOri[4] = upModel.y;
-		listenerOri[5] = upModel.z;
-		alListenerfv(AL_ORIENTATION,listenerOri);
 
 		for(unsigned int i = 0; i < sourcesPlay.size(); i++){
 			if(sourcesPlay[i]){
