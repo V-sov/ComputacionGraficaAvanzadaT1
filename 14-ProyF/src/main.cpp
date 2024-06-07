@@ -1319,7 +1319,6 @@ bool processInput(bool continueApplication) {
 				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
 		}
 
-
 		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS || (glfwGetGamepadState(GLFW_JOYSTICK_1, &gamepadState) == GLFW_PRESS &&
 			gamepadState.buttons[GLFW_GAMEPAD_BUTTON_LEFT_THUMB] == GLFW_PRESS)) {
 			changingCamera = true;
@@ -1332,7 +1331,6 @@ bool processInput(bool continueApplication) {
 			}
 			changingCamera = false;
 		}
-
         offsetX = 0;
         offsetY = 0;
 

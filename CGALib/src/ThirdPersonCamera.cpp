@@ -6,7 +6,7 @@ ThirdPersonCamera::ThirdPersonCamera(){
     angleAroundTarget = 0.0f;
     angleTarget = 0.0;
     distanceFromTarget = 1.0f;
-    sensitivity = SENSITIVITY;
+    sensitivity = SENSITIVTY;
     worldUp = glm::vec3(0.0, 1.0, 0.0);
     updateCamera();
 }
@@ -35,14 +35,14 @@ void ThirdPersonCamera::scrollMoveCamera(float soffset, float dt){
     updateCamera();
 }
 
-void ThirdPersonCamera::updateCamera(){
-    //Calculate Horizontal distance
+void ThirdPersonCamera::updateCamera() {
+    // Calculate Horizontal distance
     float horizontalDistance = distanceFromTarget * cos(pitch);
-    //Calculate Vertical distance
+    // Calculate Vertical distance
     float verticalDistance = distanceFromTarget * sin(pitch);
 
-    //Calculate camera position
-    float theta = angleTarget + angleAroundTarget;
+    // Calculate camera position to follow from the left side
+    float theta = angleTarget + angleAroundTarget + glm::radians(90.0f); // Adjust angle to the left
     float offsetx = horizontalDistance * sin(theta);
     float offsetz = horizontalDistance * cos(theta);
     position.x = cameraTarget.x - offsetx;
@@ -52,9 +52,9 @@ void ThirdPersonCamera::updateCamera(){
     yaw = angleTarget - (180 + angleAroundTarget);
 
     if (distanceFromTarget < 0)
-    	front = glm::normalize(position - cameraTarget);
+        front = glm::normalize(position - cameraTarget);
     else
-    	front = glm::normalize(cameraTarget - position);
+        front = glm::normalize(cameraTarget - position);
 
     this->right = glm::normalize(glm::cross(this->front, this->worldUp));
     this->up = glm::normalize(glm::cross(this->right, this->front));
