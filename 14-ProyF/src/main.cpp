@@ -375,6 +375,15 @@ void accionMuerte(){
 	muerte = false;
 }
 
+void accionChec(){
+    if(vida == 0){
+		muerte = true;
+		textureActivaID = textureMuerteID;
+	}else{
+		chec = true;
+	}
+}
+
 void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	if (!glfwInit()) {
@@ -1483,7 +1492,7 @@ void renderSolidScene(){
 	shaderTerrain.setInt("blendMapTexture", 4);
 	shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(80, 80)));
 	terrain.setPosition(glm::vec3(100, 0, 100));
-	terrain.render();
+	//terrain.render();
 	shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
@@ -1493,9 +1502,7 @@ void renderSolidScene(){
 	 *******************************************/
 	//Rock render
 	matrixModelRock[3][1] = terrain.getHeightTerrain(matrixModelRock[3][0], matrixModelRock[3][2]);
-	modelRock.render(matrixModelRock);
 	matrixModelCube[3][1] = terrain.getHeightTerrain(matrixModelCube[3][0], matrixModelCube[3][2]);
-	modelCube.render(matrixModelCube);
 
 	for(int i = 0; i < ArcoPosition.size(); i++){
 		glActiveTexture(GL_TEXTURE0);
@@ -2079,9 +2086,10 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 					testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
 					std::cout << "Hay colision entre " << it->first << " y el modelo" <<	jt->first << std::endl;
 					isColision = true;
-					//isOn = true;
-					//isJump = false;
-					//modelMatrixHeroe[3][1] = modelMatrixHeroe[3][1];
+					if(it->first == "cubo-" || jt->first == "cubo-"){
+						//isColision = false;
+						accionChec();
+					}
 				}
 			}
 			addOrUpdateCollisionDetection(collisionDetection, it->first, isColision);
