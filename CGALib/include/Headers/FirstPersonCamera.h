@@ -42,7 +42,7 @@ public:
 	void scrollMoveCamera(float soffset, float dt);
 	void updateCamera();
 	void moveFrontCamera(bool dir, float dt);
-	void moveRightCamera(float angle, bool left);
+	void rotateLeftRight(float deltaTime, bool left);
 };
 
 #endif // FIRSTPERSONCAMERA_H

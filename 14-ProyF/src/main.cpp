@@ -1308,7 +1308,7 @@ bool processInput(bool continueApplication) {
 		{
 			glm::vec3 heroView = glm::vec3(modelMatrixHeroe[3]);
 			float yOffset = 5.0f;
-			float rotationSpeed = 25.0f;
+			float rotationSpeed = 0.25f;
 			glm::vec3 cameraPosition = heroView + glm::vec3(0.0f, yOffset, -1.0f);
 			// Establecer la posición de la cámara
 			cameraFP->setPosition(cameraPosition);
@@ -1317,9 +1317,9 @@ bool processInput(bool continueApplication) {
 			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 				cameraFP->moveFrontCamera(false, deltaTime);
 			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-				cameraFP->moveRightCamera(-rotationSpeed, true); // Rotación hacia la izquierda
+				cameraFP->rotateLeftRight(rotationSpeed, true); // Rotación hacia la izquierda
 			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-				cameraFP->moveRightCamera(rotationSpeed, false); // Rotación hacia la derecha
+				cameraFP->rotateLeftRight(rotationSpeed, false); // Rotación hacia la derecha
 			if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS)
 				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
 		}
@@ -2295,19 +2295,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		listenerPos[0] = modelMatrixHeroe[3].x;
 		listenerPos[1] = modelMatrixHeroe[3].y;
 		listenerPos[2] = modelMatrixHeroe[3].z;
-		alListenerfv(AL_POSITION, listenerPos);
 
-		glm::vec3 upModel = glm::normalize(modelMatrixHeroe[1]);
-		glm::vec3 frontModel = glm::normalize(modelMatrixHeroe[2]);
-
-		listenerOri[0] = frontModel.x;
-		listenerOri[1] = frontModel.y;
-		listenerOri[2] = frontModel.z;
-		listenerOri[3] = upModel.x;
-		listenerOri[4] = upModel.y;
-		listenerOri[5] = upModel.z;
-
-		alListenerfv(AL_ORIENTATION, listenerOri);
 		for(unsigned int i = 0; i < sourcesPlay.size(); i++){
 			if(sourcesPlay[i]){
 				alSourcePlay(source[i]);
