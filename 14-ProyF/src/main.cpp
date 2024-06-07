@@ -132,6 +132,7 @@ Model modelBasePuente;
 Model modelBordePuente;
 Model modelPicasPuente;
 Model modelCube;
+Model modelCerbero;
 // Lamps
 Model modelLamp1;
 Model modelLamp2;
@@ -193,7 +194,7 @@ glm::mat4 matrixModelIsle = glm::mat4(1.0);
 glm::mat4 matrixModelBasePuente = glm::mat4(1.0);
 glm::mat4 matrixModelBordePuente = glm::mat4(1.0);
 glm::mat4 matrixModelCube = glm::mat4(1.0);
-
+glm::mat4 matrixModelCerbero = glm::mat4(1.0);
 glm::mat4 modelMatrixHeroe = glm::mat4(1.0f);
 
 int animationHeroeIndex = 0;
@@ -487,6 +488,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	modelTower.loadModel("../models/Tower/Torre.fbx");
 	modelTower.setShader(&shaderMulLighting);
+
+	modelCerbero.loadModel("../models/Cerbero/Cerbero.fbx");
+	modelCerbero.setShader(&shaderMulLighting);
 
 	modelBasePuente.loadModel("../models/Puente/BasePuente.fbx");
 	modelBasePuente.setShader(&shaderMulLighting);
@@ -1059,6 +1063,7 @@ void destroy() {
 	modelLampPost2.destroy();
 	heroeModelAnimate.destroy();
 	modelFaro.destroy();
+	modelCerbero.destroy();
 	modelCube.destroy();
 
 	// Terrains objects Delete
@@ -1435,6 +1440,7 @@ void prepareScene(){
 	modelBordePuente.setShader(&shaderMulLighting);
 	modelPicasPuente.setShader(&shaderMulLighting);
 	modelIsle.setShader(&shaderMulLighting);
+	modelCerbero.setShader(&shaderMulLighting);
 	modelCube.setShader(&shaderMulLighting);
 
 	//Lamp models
@@ -1458,6 +1464,7 @@ void prepareDepthScene(){
 	modelBordePuente.setShader(&shaderDepth);
 	modelPicasPuente.setShader(&shaderDepth);
 	modelIsle.setShader(&shaderDepth);
+	modelCerbero.setShader(&shaderDepth);
 	modelCube.setShader(&shaderDepth);
 	//Lamp models
 	modelLamp1.setShader(&shaderDepth);
@@ -1527,7 +1534,8 @@ void renderSolidScene(){
 	}
 		
 	glActiveTexture(GL_TEXTURE0);
-	
+	matrixModelCerbero[3][1] = terrain.getHeightTerrain(matrixModelCerbero[3][0], matrixModelCerbero[3][2]);
+	modelCerbero.render(matrixModelCerbero);
 	// Render lamp
 	for(int i = 0; i < FaroPosition.size(); i++){
 		FaroPosition[i].y = terrain.getHeightTerrain(FaroPosition[i].x, FaroPosition[i].z);
@@ -1633,6 +1641,9 @@ void applicationLoop() {
 	matrixModelTower = glm::translate(matrixModelTower, glm::vec3(5.0, 2.7, -23.0));
 	matrixModelTower = glm::rotate(matrixModelTower, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
+	matrixModelCerbero = glm::translate(matrixModelCerbero, glm::vec3(45.0, 0.0, -210.0));
+	matrixModelCerbero = glm::rotate(matrixModelCerbero, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+	
 	matrixModelBasePuente = glm::scale(matrixModelBasePuente, glm::vec3(6.0, 6.0, 6.0));
 	matrixModelBasePuente = glm::translate(matrixModelBasePuente, glm::vec3(8.0, 1.0, 7.0));
 	matrixModelBasePuente = glm::rotate(matrixModelBasePuente, glm::radians(-90.0f), glm::vec3(1, 0, 0));
