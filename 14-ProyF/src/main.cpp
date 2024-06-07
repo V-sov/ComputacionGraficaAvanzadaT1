@@ -84,8 +84,9 @@ Shader shaderDepth;
 
 Shader shaderViewDepth;
 
-std::shared_ptr<Camera> camera(new FirstPersonCamera()); //Intancia de la camara en tercera persona
-float distanceFromTarget = 7.0;
+std::shared_ptr<Camera> camera(new ThirdPersonCamera()); //Intancia de la camara en tercera persona
+std::shared_ptr<FirstPersonCamera> cameraFP(new FirstPersonCamera());
+float distanceFromTarget = 15.0;
 
 //Botón de pausa
 bool pause = false;
@@ -154,7 +155,7 @@ GLuint textureMuerteID;
 
 //Proyecto
 
-bool iniciaPartida = false, presionarOpcion = false, uno = false, muerte = false;
+bool iniciaPartida = false, presionarOpcion = false, uno = false, muerte = false, isThirdCamera=true, changingCamera=false;;
 // Modelos para el render del texto
 FontTypeRendering::FontTypeRendering *modelTextMuerte;
 FontTypeRendering::FontTypeRendering *modelTextRegresoInicio;
@@ -505,9 +506,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelLamp2.setShader(&shaderMulLighting);
 	modelLampPost2.loadModel("../models/Street_Light/LampPost.obj");
 	modelLampPost2.setShader(&shaderMulLighting);
-
 	modelFaro.loadModel("../models/Farol/Faro.fbx");
 	modelFaro.setShader(&shaderMulLighting);
+
 	// Heroe model
 	heroeModelAnimate.loadModel("../models/heroe/Heroe.fbx");
 	heroeModelAnimate.setShader(&shaderMulLighting);
@@ -516,10 +517,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	terrain.init();
 	terrain.setShader(&shaderTerrain);
 
-	camera->setPosition(glm::vec3(-15.0f, 3.0f, 0.0f));
-	camera->setDistanceFromTarget(distanceFromTarget);
-	camera->setSensitivity(1.0);
-	
 // Se inicializa los modelos de render text
 	modelTextMuerte = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
 	modelTextMuerte->Initialize();
@@ -1147,7 +1144,7 @@ bool processInput(bool continueApplication) {
     if (exitApp || glfwWindowShouldClose(window) != 0) {
         return false;
     }
-    
+	
     if (!iniciaPartida) {
         const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
 
@@ -1302,12 +1299,40 @@ bool processInput(bool continueApplication) {
             }
         }
 		GLFWgamepadstate gamepadState;
-
-		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			camera->mouseMoveCamera(offsetX, 0.0, deltaTime);
-		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-			camera->mouseMoveCamera(0.0, offsetY, deltaTime);
-
+		if (isThirdCamera)
+		{
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+				camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+		}
+		else
+		{
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+				cameraFP->moveFrontCamera(true, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+				cameraFP->moveFrontCamera(false, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+				cameraFP->moveRightCamera(false, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+				cameraFP->moveRightCamera(true, deltaTime);
+			if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS)
+				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
+		}
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+		{
+			changingCamera = true;
+		}
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_RELEASE)
+		{
+			if (changingCamera)
+			{
+				isThirdCamera = !isThirdCamera;
+				std::cout << "Changed Camera" << std::endl;
+			}
+			changingCamera = false;
+		}
+			
+		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		//	camera->mouseMoveCamera(0, offsetY, deltaTime);
 		offsetX = 0;
 		offsetY = 0;
 
@@ -1555,6 +1580,7 @@ void applicationLoop() {
 
 	glm::vec3 axis;
 	glm::vec3 target;
+	glm::mat4 view;
 	float angleTarget;
 
 	int state = 0;
@@ -1616,27 +1642,34 @@ void applicationLoop() {
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
 				(float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
 
-		if(modelSelected == 1){
-			axis = glm::axis(glm::quat_cast(modelMatrixHeroe));
-			angleTarget = glm::angle(glm::quat_cast(modelMatrixHeroe));
-			target = modelMatrixHeroe[3];
-		}
-		else{
-			axis = glm::axis(glm::quat_cast(modelMatrixHeroe));
-			angleTarget = glm::angle(glm::quat_cast(modelMatrixHeroe));
-			target = modelMatrixHeroe[3];
-		}
-
 		if(std::isnan(angleTarget))
 			angleTarget = 0.0;
 		if(axis.y < 0)
 			angleTarget = -angleTarget;
 		if(modelSelected == 1)
 			angleTarget -= glm::radians(90.0f);
-		camera->setCameraTarget(target);
-		camera->setAngleTarget(angleTarget);
-		camera->updateCamera();
-		glm::mat4 view = camera->getViewMatrix();
+
+		//configurando el viewMatrix:
+		if (isThirdCamera)
+		{
+			axis = glm::axis(glm::quat_cast(modelMatrixHeroe));
+			angleTarget = glm::angle(glm::quat_cast(modelMatrixHeroe));
+			target = modelMatrixHeroe[3];
+			camera->setAngleTarget(angleTarget);
+			camera->setCameraTarget(target);
+			camera->updateCamera();
+			camera->setDistanceFromTarget(distanceFromTarget);
+			view = camera->getViewMatrix();
+		}
+		else
+		{
+			glm::vec3 heroView = glm::vec3(modelMatrixHeroe[3]);
+			float yOffset = 5.0f;
+			glm::vec3 cameraPosition = heroView + glm::vec3(0.0f, yOffset, -1.0f);
+			// Establecer la posición de la cámara
+			cameraFP->setPosition(cameraPosition);
+			view = cameraFP->getViewMatrix();
+		}
 
 		shadowBox->update(screenWidth, screenHeight);
 		glm::vec3 centerBox = shadowBox->getCenter();
@@ -2237,16 +2270,6 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				}
 			}
 		}
-
-		/*****************/
-		// Camara de Mayow en primera persona
-		// Obtener la posición de Mayow
-		glm::vec3 heroPositionCamara = glm::vec3(modelMatrixHeroe[3]);
-		float yOffset = 5.0f;
-		glm::vec3 cameraPosition = heroPositionCamara + glm::vec3(0.0f, yOffset, -1.0f);
-		// Establecer la posición de la cámara
-		camera->setPosition(cameraPosition);
-
 		std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::
 			iterator itSBB;
 
