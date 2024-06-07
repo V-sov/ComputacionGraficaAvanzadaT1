@@ -47,10 +47,18 @@ void FirstPersonCamera::moveFrontCamera(bool dir, float dt) {
 	updateCamera();
 }
 
-void FirstPersonCamera::moveRightCamera(bool dir, float dt) {
-	if (dir)
-		this->position += (float)dt * speed * this->right;
-	else
-		this->position -= (float)dt * speed * this->right;
-	updateCamera();
+// Modificado para realizar una rotación alrededor del eje Y
+void FirstPersonCamera::moveRightCamera(float angle, bool left) {
+    // Asumiendo que 'angle' es en grados y queremos convertirlo a radianes
+    float radiansAngle = glm::radians(angle);
+
+    if(left) {
+        // Rotación hacia la izquierda
+        this->yaw -= radiansAngle;
+    } else {
+        // Rotación hacia la derecha
+        this->yaw += radiansAngle;
+    }
+
+    updateCamera(); // Actualizar la cámara después de la rotación
 }

@@ -1301,36 +1301,33 @@ bool processInput(bool continueApplication) {
 		GLFWgamepadstate gamepadState;
 		if (isThirdCamera)
 		{
-			// Rotación con el mouse
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || 
-				(fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[2]) > 0.1f || fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[3]) > 0.1f))
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 				camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
-
 		}
 		else
 		{
-			// Rotación con el mouse o con el joystick izquierdo
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || 
-				(fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[2]) > 0.1f || fabs(glfwGetJoystickAxes(GLFW_JOYSTICK_1)[3]) > 0.1f))
-				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
-
-			// Movimiento con teclas WASD o con el joystick izquierdo
-			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[1] < -0.1f)
+			glm::vec3 heroView = glm::vec3(modelMatrixHeroe[3]);
+			float yOffset = 5.0f;
+			float rotationSpeed = 25.0f;
+			glm::vec3 cameraPosition = heroView + glm::vec3(0.0f, yOffset, -1.0f);
+			// Establecer la posición de la cámara
+			cameraFP->setPosition(cameraPosition);
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 				cameraFP->moveFrontCamera(true, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[1] > 0.1f)
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 				cameraFP->moveFrontCamera(false, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[0] < -0.1f)
-				cameraFP->moveRightCamera(false, deltaTime);
-			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetJoystickAxes(GLFW_JOYSTICK_1)[0] > 0.1f)
-				cameraFP->moveRightCamera(true, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+				cameraFP->moveRightCamera(-rotationSpeed, true); // Rotación hacia la izquierda
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+				cameraFP->moveRightCamera(rotationSpeed, false); // Rotación hacia la derecha
+			if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS)
+				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
 		}
-
-		// Cambio de cámara al presionar el joystick derecho
-		if (glfwGetJoystickButton(GLFW_JOYSTICK_1, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
 		{
 			changingCamera = true;
 		}
-		if (glfwGetJoystickButton(GLFW_JOYSTICK_1, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) == GLFW_RELEASE)
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_RELEASE)
 		{
 			if (changingCamera)
 			{
@@ -1339,7 +1336,7 @@ bool processInput(bool continueApplication) {
 			}
 			changingCamera = false;
 		}
-	
+			
 		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		//	camera->mouseMoveCamera(0, offsetY, deltaTime);
 		offsetX = 0;
@@ -1672,11 +1669,6 @@ void applicationLoop() {
 		}
 		else
 		{
-			glm::vec3 heroView = glm::vec3(modelMatrixHeroe[3]);
-			float yOffset = 5.0f;
-			glm::vec3 cameraPosition = heroView + glm::vec3(0.0f, yOffset, -1.0f);
-			// Establecer la posición de la cámara
-			cameraFP->setPosition(cameraPosition);
 			view = cameraFP->getViewMatrix();
 		}
 
@@ -2300,24 +2292,6 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		source2Pos[2] = matrixModelArc[3].z;
 		alSourcefv(source[2], AL_POSITION, source2Pos);
 
-		
-		listenerPos[0] = modelMatrixHeroe[3].x;
-		listenerPos[1] = modelMatrixHeroe[3].y;
-		listenerPos[2] = modelMatrixHeroe[3].z;
-		alListenerfv(AL_POSITION, listenerPos);
-
-		glm::vec3 upModel = glm::normalize(modelMatrixHeroe[1]);
-		glm::vec3 frontModel = glm::normalize(modelMatrixHeroe[2]);
-
-		listenerOri[0] = frontModel.x;
-		listenerOri[1] = frontModel.y;
-		listenerOri[2] = frontModel.z;
-		listenerOri[3] = upModel.x;
-		listenerOri[4] = upModel.y;
-		listenerOri[5] = upModel.z;
-
-		
-		alListenerfv(AL_ORIENTATION, listenerOri);
 
 		for(unsigned int i = 0; i < sourcesPlay.size(); i++){
 			if(sourcesPlay[i]){
