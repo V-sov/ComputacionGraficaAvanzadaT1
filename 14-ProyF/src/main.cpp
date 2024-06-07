@@ -142,7 +142,7 @@ Model modelFaro;
 Model heroeModelAnimate;
 
 // Terrain model instance
-Terrain terrain(-1, -1, 350, 87.0, "../Textures/heightmap5.png");
+Terrain terrain(-1, -1, 350, 87.1, "../Textures/heightmap5.png");
 
 ShadowBox * shadowBox;
 
@@ -1494,7 +1494,7 @@ void renderSolidScene(){
 	}
 
 	// Forze to enable the unit texture to 0 always ----------------- IMPORTANT
-	matrixModelTower[3][1] = terrain.getHeightTerrain(matrixModelTower[3][0], matrixModelTower[3][2]);
+	//matrixModelTower[3][1] = terrain.getHeightTerrain(matrixModelTower[3][0], matrixModelTower[3][2]);
 	modelTower.render(matrixModelTower);
 	//matrixModelIsle[3][1] = terrain.getHeightTerrain(matrixModelIsle[3][0], matrixModelIsle[3][2]);
 	for(int i = 0; i < IslaPosition.size(); i++){
@@ -1609,7 +1609,7 @@ void applicationLoop() {
 	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
 
 	matrixModelTower = glm::scale(matrixModelTower, glm::vec3(9.0, 4.0, 9.0));
-	matrixModelTower = glm::translate(matrixModelTower, glm::vec3(5.0, 0.0, -23.0));
+	matrixModelTower = glm::translate(matrixModelTower, glm::vec3(5.0, 2.7, -23.0));
 	matrixModelTower = glm::rotate(matrixModelTower, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
 	matrixModelBasePuente = glm::scale(matrixModelBasePuente, glm::vec3(6.0, 6.0, 6.0));
