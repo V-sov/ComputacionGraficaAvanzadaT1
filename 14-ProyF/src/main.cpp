@@ -108,7 +108,7 @@ float arco1x = 11.0;
 float arco1y = 0.0;
 float arco1z = 35.0;
 // Vidas
-int vida = 2;
+int vida = 3;
 int warco = 0;
 bool chec = false;
 
@@ -131,6 +131,7 @@ Model modelIsle;
 Model modelBasePuente;
 Model modelBordePuente;
 Model modelPicasPuente;
+Model modelCube;
 // Lamps
 Model modelLamp1;
 Model modelLamp2;
@@ -142,7 +143,7 @@ Model modelFaro;
 Model heroeModelAnimate;
 
 // Terrain model instance
-Terrain terrain(-1, -1, 350, 87.1, "../Textures/heightmap5.png");
+Terrain terrain(-1, -1, 350, 87.0, "../Textures/heightmap5.png");
 
 ShadowBox * shadowBox;
 
@@ -191,6 +192,7 @@ glm::mat4 matrixModelTower = glm::mat4(1.0);
 glm::mat4 matrixModelIsle = glm::mat4(1.0);
 glm::mat4 matrixModelBasePuente = glm::mat4(1.0);
 glm::mat4 matrixModelBordePuente = glm::mat4(1.0);
+glm::mat4 matrixModelCube = glm::mat4(1.0);
 
 glm::mat4 modelMatrixHeroe = glm::mat4(1.0f);
 
@@ -467,6 +469,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	modelRock.loadModel("../models/rock/rock.obj");
 	modelRock.setShader(&shaderMulLighting);
+
+	modelCube.loadModel("../models/cube/untitled.obj");
+	modelCube.setShader(&shaderMulLighting);
 
 	modelArc.loadModel("../models/Arco/Arco.fbx");
 	modelArc.setShader(&shaderMulLighting);
@@ -1045,6 +1050,7 @@ void destroy() {
 	modelLampPost2.destroy();
 	heroeModelAnimate.destroy();
 	modelFaro.destroy();
+	modelCube.destroy();
 
 	// Terrains objects Delete
 	terrain.destroy();
@@ -1063,7 +1069,6 @@ void destroy() {
 	glDeleteTextures(1, &textureTerrainBlendMapID);
 	glDeleteTextures(1, &textureStartID);
 	glDeleteTextures(1, &textureResumeID);
-	glDeleteTextures(1, &textureMenuID);
 	glDeleteTextures(1, &textureScreen2ID);
 	glDeleteTextures(1, &textureMuerteID);
 	glDeleteTextures(1, &textureMenuID);
@@ -1143,14 +1148,13 @@ bool processInput(bool continueApplication) {
         } else {
             ctrlRelease = true;
         }
-        if (textureActivaID == textureStartID && presionarEnter && muerteRelease 
-            && controlRelease && keyrelease && menuRelease) {
+        if (textureActivaID == textureStartID && presionarEnter && muerteRelease && controlRelease && keyrelease && menuRelease) {
             iniciaPartida = true;
             pause = false;
             pauseInicio = false;
             muerte = false;
             textureActivaID = textureScreen2ID;        
-            vida = 2;
+            vida = 3;
         } else if (textureActivaID == textureResumeID && presionarEnter) {
             iniciaPartida = true;
             pause = false;
@@ -1180,7 +1184,7 @@ bool processInput(bool continueApplication) {
             } else if (textureActivaID == textureResumeID && ctrlRelease) {
                 textureActivaID = textureMenuID;
             }
-            else if (textureActivaID == textureMuerteID && muerte && ctrlRelease) {
+            else if (textureActivaID == textureMuerteID && muerte ) {
                 textureActivaID = textureMuerteID;
             }
             else if (textureActivaID == textureKeysID && ctrlRelease) {
@@ -1197,12 +1201,16 @@ bool processInput(bool continueApplication) {
             pauseInicio = true;
         }
     } else if (muerte == true && iniciaPartida == true) {
-        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
-            iniciaPartida = false;
-            muerteRelease = false;
-            textureActivaID = textureMenuID;
-            accionMuerte();
-        }
+        if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
+				iniciaPartida = false;
+				muerteRelease = false;
+				textureActivaID = textureMenuID;
+				accionMuerte();
+			}
+		else{
+            textureActivaID = textureMuerteID;
+			std::cout << "entra Aqui?"<< iniciaPartida <<"\n";
+		}
     }
     // Pantalla STOP
     if (enableCountSelected && (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS || 
@@ -1215,18 +1223,19 @@ bool processInput(bool continueApplication) {
             }
         } else if (muerte || pause || pauseInicio) {
             textureActivaID = textureActivaID;
+			std::cout << textureActivaID <<"1111110\n";
         }
     }
 
     if (enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS) {
         if (iniciaPartida) {
-            if (vida == 0) {
-                muerte = true;
-                textureActivaID = textureMuerteID;
-            } else {
-                chec = true;
-            }
-            checkRelease = false;
+            if(vida == 0){
+				muerte = true;
+				textureActivaID = textureMuerteID;
+			}else{
+				chec = true;
+			}
+			checkRelease = false;
         }
     }
     if (enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE) {
@@ -1419,6 +1428,8 @@ void prepareScene(){
 	modelBordePuente.setShader(&shaderMulLighting);
 	modelPicasPuente.setShader(&shaderMulLighting);
 	modelIsle.setShader(&shaderMulLighting);
+	modelCube.setShader(&shaderMulLighting);
+
 	//Lamp models
 	modelLamp1.setShader(&shaderMulLighting);
 	modelLamp2.setShader(&shaderMulLighting);
@@ -1440,6 +1451,7 @@ void prepareDepthScene(){
 	modelBordePuente.setShader(&shaderDepth);
 	modelPicasPuente.setShader(&shaderDepth);
 	modelIsle.setShader(&shaderDepth);
+	modelCube.setShader(&shaderDepth);
 	//Lamp models
 	modelLamp1.setShader(&shaderDepth);
 	modelLamp2.setShader(&shaderDepth);
@@ -1482,6 +1494,8 @@ void renderSolidScene(){
 	//Rock render
 	matrixModelRock[3][1] = terrain.getHeightTerrain(matrixModelRock[3][0], matrixModelRock[3][2]);
 	modelRock.render(matrixModelRock);
+	matrixModelCube[3][1] = terrain.getHeightTerrain(matrixModelCube[3][0], matrixModelCube[3][2]);
+	modelCube.render(matrixModelCube);
 
 	for(int i = 0; i < ArcoPosition.size(); i++){
 		glActiveTexture(GL_TEXTURE0);
@@ -1604,6 +1618,8 @@ void applicationLoop() {
 	int state = 0;
 
 	matrixModelRock = glm::translate(matrixModelRock, glm::vec3(arco1x, arco1y, arco1z));
+	matrixModelCube = glm::translate(matrixModelCube, glm::vec3(35,0,0));
+
 	matrixModelArc = glm::scale(matrixModelArc, glm::vec3(2.0, 2.0, 1.0));
 	matrixModelArc = glm::translate(matrixModelArc, glm::vec3(arco1x, arco1y, arco1z));
 	matrixModelArc = glm::rotate(matrixModelArc, glm::radians(-90.0f), glm::vec3(0, 0, 1));
@@ -1819,7 +1835,9 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, textureActivaID);
 			shaderTexture.setInt("outTexture", 0);
+			glEnable(GL_BLEND);
 			boxIntro.render();
+			glDisable(GL_BLEND);
 			if(textureActivaID==textureMenuID && pause){
 				/************Render de imagen de frente Texto Menú**************/
 				modelTextInicioPartida->modFuente(65, 0.10f, 0.10f, 0.150f, 1.0f);
@@ -1914,6 +1932,21 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		 * IMPORTANT do this before interpolations
 		 *******************************************/
 
+		/************Render de imagen de frente Texto Muerte**************/
+		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureActivaID);
+		shaderTexture.setInt("outTexture", 0);
+		glEnable(GL_BLEND);
+		boxIntro.render();
+		glDisable(GL_BLEND);
+		if(textureActivaID == textureMuerteID){
+			std::cout << textureActivaID;
+			modelTextMuerte->modFuente(120, 0.850f, 0.850f, 0.850f, 1.0f);
+			modelTextMuerte->render("GAME OVER",-0.78,0.0);
+		}
+		
 		//Colliders puentes 
 		for(int i = 0; i < PuentePosition.size(); i++){
 			AbstractModel::OBB puenteCollider;
@@ -1949,6 +1982,18 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			//puenteCollider2.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
 			std::get<0>(collidersOBB.find("picas-" + std::to_string(i))->second) = puenteCollider2;
 		}
+
+		AbstractModel::OBB cube;
+		glm::mat4 modelMatrixColliderCube = glm::mat4(matrixModelCube);
+			modelMatrixColliderCube = glm::translate(matrixModelCube, glm::vec3(012.0,0.0,2.8));
+			//modelMatrixColliderCube = glm::rotate(modelMatrixColliderCube, glm::radians(90.0f), glm::vec3(1, 0, 0));
+			addOrUpdateColliders(collidersOBB, "cubo-", cube,modelMatrixColliderCube);
+			cube.u = glm::quat_cast(modelMatrixColliderCube);
+			modelMatrixColliderCube = glm::scale(modelMatrixColliderCube, glm::vec3(20,2,8.8));
+			modelMatrixColliderCube = glm::translate(modelMatrixColliderCube, modelBasePuente.getObb().c);
+			cube.c = modelMatrixColliderCube[3];
+			cube.e = modelBasePuente.getObb().e*glm::vec3(20,2,8.8);
+			//cube.e = modelBasePuente.getObb().e * glm::vec3(0.8f,0.50f,01.10f);
 
 		//Collider del la rock
 		AbstractModel::SBB rockCollider;
@@ -1986,7 +2031,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			matrixCollider = glm::scale(matrixCollider, std::get<0>(it->second).e * 2.0f);
 			boxCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
 			boxCollider.enableWireMode();
-			//boxCollider.render(matrixCollider);
+			boxCollider.render(matrixCollider);
 		}
 
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator it =
@@ -2000,20 +2045,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		}
 
 		animationHeroeIndex = 0;
-
-	/************Render de imagen de frente Texto Muerte**************/
-		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
-		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureActivaID);
-		shaderTexture.setInt("outTexture", 0);
-		glEnable(GL_BLEND);
-		boxIntro.render();
-		glDisable(GL_BLEND);
-		if(textureActivaID == textureMuerteID){
-			modelTextMuerte->modFuente(120, 0.850f, 0.850f, 0.850f, 1.0f);
-			modelTextMuerte->render("GAME OVER",-0.78,0.0);
-		}
+		
 
 		/**
 		 * Colisiones de Oriented Bounding Box - Oriented Bounding Box
@@ -2045,7 +2077,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
 				if (it != jt && 
 					testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay colision entre " << it->first << " y el modelo" <<	jt->first << std::endl;
+					std::cout << "Hay colision entre " << it->first << " y el modelo" <<	jt->first << std::endl;
 					isColision = true;
 					//isOn = true;
 					//isJump = false;
