@@ -2295,6 +2295,17 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		listenerPos[0] = modelMatrixHeroe[3].x;
 		listenerPos[1] = modelMatrixHeroe[3].y;
 		listenerPos[2] = modelMatrixHeroe[3].z;
+		alListenerfv(AL_POSITION, listenerPos);
+
+		glm::vec3 upModel = glm::normalize(modelMatrixHeroe[1]);
+		glm::vec3 frontModel = glm::normalize(modelMatrixHeroe[2]);
+
+		listenerOri[0] = frontModel.x;
+		listenerOri[1] = frontModel.y;
+		listenerOri[2] = frontModel.z;
+		listenerOri[3] = upModel.x;
+		listenerOri[4] = upModel.y;
+		listenerOri[5] = upModel.z;
 
 		for(unsigned int i = 0; i < sourcesPlay.size(); i++){
 			if(sourcesPlay[i]){
