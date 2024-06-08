@@ -1,7 +1,37 @@
 #define _USE_MATH_DEFINES
+
+
+// Botones de acción
 #define TRIANGLE_BUTTON 3
 #define CIRCLE_BUTTON 1
-#define JOYSTICK_LEFT_BUTTON 0 // Suponiendo que el botón izquierdo del joystick tiene el índice 0
+#define CROSS_BUTTON 2
+#define SQUARE_BUTTON 0
+
+// Botones de los joysticks
+#define JOYSTICK_LEFT_BUTTON 10
+#define JOYSTICK_RIGHT_BUTTON 11
+
+// Botones direccionales (D-pad)
+#define DPAD_UP 12
+#define DPAD_DOWN 13
+#define DPAD_LEFT 14
+#define DPAD_RIGHT 15
+
+// Botones de los hombros
+#define L1_BUTTON 4
+#define R1_BUTTON 5
+#define L2_BUTTON 6
+#define R2_BUTTON 7
+
+// Botones de opciones
+#define START_BUTTON 8
+#define SELECT_BUTTON 9
+
+#define LEFT_JOYSTICK_HORIZONTAL_AXIS 0
+#define LEFT_JOYSTICK_VERTICAL_AXIS 1
+
+// Botón central (a menudo tiene un logo de la consola o del fabricante)
+#define HOME_BUTTON 16
 
 #include <cmath>
 //glew include
@@ -84,11 +114,9 @@ Shader shaderDepth;
 
 Shader shaderViewDepth;
 
-std::shared_ptr<Camera> camera(new FirstPersonCamera()); //Intancia de la camara en tercera persona
-float distanceFromTarget = 7.0;
-/*std::shared_ptr<Camera> camera(new ThirdPersonCamera()); //Intancia de la camara en tercera persona
+std::shared_ptr<Camera> camera(new ThirdPersonCamera()); //Intancia de la camara en tercera persona
 std::shared_ptr<FirstPersonCamera> cameraFP(new FirstPersonCamera());
-float distanceFromTarget = 15.0;*/
+float distanceFromTarget = 15.0;
 
 //Botón de pausa
 bool pause = false;
@@ -102,8 +130,6 @@ bool ctrlRelease = true;
 bool muerteRelease = true;
 bool controlRelease = true;
 bool checkRelease = true;
-bool isThirdCamera = true;
-bool changingCamera = false;
 
 //Valores para checkpoint
 // Pos. Arcos
@@ -162,7 +188,7 @@ GLuint textureMuerteID;
 
 //Proyecto
 
-bool iniciaPartida = false, presionarOpcion = false, uno = false, muerte = false;
+bool iniciaPartida = false, presionarOpcion = false, uno = false, muerte = false, isThirdCamera=true, changingCamera=false;;
 // Modelos para el render del texto
 FontTypeRendering::FontTypeRendering *modelTextMuerte;
 FontTypeRendering::FontTypeRendering *modelTextRegresoInicio;
@@ -513,9 +539,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelLamp2.setShader(&shaderMulLighting);
 	modelLampPost2.loadModel("../models/Street_Light/LampPost.obj");
 	modelLampPost2.setShader(&shaderMulLighting);
-
 	modelFaro.loadModel("../models/Farol/Faro.fbx");
 	modelFaro.setShader(&shaderMulLighting);
+
 	// Heroe model
 	heroeModelAnimate.loadModel("../models/heroe/Heroe.fbx");
 	heroeModelAnimate.setShader(&shaderMulLighting);
@@ -524,10 +550,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	terrain.init();
 	terrain.setShader(&shaderTerrain);
 
-	camera->setPosition(glm::vec3(-15.0f, 3.0f, 0.0f));
-	camera->setDistanceFromTarget(distanceFromTarget);
-	camera->setSensitivity(1.0);
-	
 // Se inicializa los modelos de render text
 	modelTextMuerte = new FontTypeRendering::FontTypeRendering(screenWidth, screenHeight);
 	modelTextMuerte->Initialize();
@@ -946,7 +968,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	else 
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureParticlesFountain.freeImage(); // Liberamos memoria
-
 */
 
 	/*******************************************
@@ -1030,8 +1051,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
-
 
 void destroy() {
 	glfwDestroyWindow(window);
@@ -1155,12 +1174,13 @@ bool processInput(bool continueApplication) {
     if (exitApp || glfwWindowShouldClose(window) != 0) {
         return false;
     }
-    
+	
     if (!iniciaPartida) {
         const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
 
         bool presionarEnter = (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) || 
                               (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS);
+                              (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[2] == GLFW_PRESS);
         int p3 = glfwGetKey(window, GLFW_KEY_ENTER);
         if (textureActivaID == textureScreen2ID || textureActivaID == textureMuerteID) {
             ctrlRelease = false;
@@ -1226,12 +1246,12 @@ bool processInput(bool continueApplication) {
             iniciaPartida = false;
             pauseInicio = true;
         }
-
 		if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE){
 			iniciorel = true;
 		}
     } else if (muerte == true && iniciaPartida == true && iniciorel) {
-        if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS){
+		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+        if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS || (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS)){
 			if(starmur == 0){
 				starmur = 1;
 				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
@@ -1298,7 +1318,6 @@ bool processInput(bool continueApplication) {
             const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
             //std::cout << "Right Stick X axis: " << axes[2] << std::endl;
             //std::cout << "Right Stick Y axis: " << axes[3] << std::endl;
-
             if (fabs(axes[1]) > 0.2) {
                 modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, -axes[1] * 0.1));
                 animationHeroeIndex = 2;
@@ -1307,31 +1326,103 @@ bool processInput(bool continueApplication) {
                 modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-axes[0] * 0.5f), glm::vec3(0, 1, 0));
                 animationHeroeIndex = 2;
             }
-
+			/*
             if (fabs(axes[2]) > 0.2) {
                 camera->mouseMoveCamera(-axes[2], 0.0, deltaTime);
             }
             if (fabs(axes[3]) > 0.2) {
                 camera->mouseMoveCamera(0.0, -axes[3], deltaTime);
             }
+			*/
 
             const unsigned char * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-            if (buttons[0] == GLFW_PRESS)
+            if (buttons[CIRCLE_BUTTON] == GLFW_PRESS)
                 std::cout << "Se presiona x" << std::endl;
 
-            if (!isJump && buttons[0] == GLFW_PRESS) {
+            if (!isJump && buttons[CIRCLE_BUTTON] == GLFW_PRESS) {
                 isJump = true;
                 startTimeJump = currTime;
                 tmv = 0;
             }
         }
 		GLFWgamepadstate gamepadState;
-		
-		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			camera->mouseMoveCamera(offsetX, 0.0, deltaTime);
-		if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-			camera->mouseMoveCamera(0.0, offsetY, deltaTime);
+		if (isThirdCamera)
+		{
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+				camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+		}
+		else
+		{
+			glm::vec3 heroView = glm::vec3(modelMatrixHeroe[3]);
+			float yOffset = 5.0f;
+			float rotationSpeed = 1.14592f;
+			glm::vec3 cameraPosition = heroView + glm::vec3(0.0f, yOffset, -1.0f);
+			// Establecer la posición de la cámara
+			cameraFP->setPosition(cameraPosition);
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+				cameraFP->moveFrontCamera(true, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+				cameraFP->moveFrontCamera(false, deltaTime);
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+				cameraFP->rotateLeftRight(rotationSpeed, true); // Rotación hacia la izquierda
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+				cameraFP->rotateLeftRight(rotationSpeed, false); // Rotación hacia la derecha
+			if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS)
+				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
 
+			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+				int axisCount;
+				const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axisCount);
+				const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+
+				float leftJoystickHorizontal = axes[LEFT_JOYSTICK_HORIZONTAL_AXIS];
+				float leftJoystickVertical = axes[LEFT_JOYSTICK_VERTICAL_AXIS];
+
+				// Movimiento de la cámara hacia adelante y hacia atrás
+				if (leftJoystickVertical < -0.1f) {
+					cameraFP->moveFrontCamera(true, deltaTime);
+				}
+				if (leftJoystickVertical > 0.1f) {
+					cameraFP->moveFrontCamera(false, deltaTime);
+				}
+				// Rotación izquierda y derecha con los botones R1 y R2
+				if (buttons[R2_BUTTON] == GLFW_PRESS)
+					cameraFP->rotateLeftRight(rotationSpeed, false); // Rotación hacia la derecha
+				if (buttons[L2_BUTTON] == GLFW_PRESS)
+					cameraFP->rotateLeftRight(rotationSpeed, true); // Rotación hacia la izquierda
+			}
+		}
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+		{
+			changingCamera = true;
+		}
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_RELEASE)
+		{
+			if (changingCamera)
+			{
+				isThirdCamera = !isThirdCamera;
+				std::cout << "Changed Camera" << std::endl;
+			}
+			changingCamera = false;
+		}
+		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+			int buttonCount;
+			const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+
+			if (buttons[JOYSTICK_RIGHT_BUTTON] == GLFW_PRESS) {
+				changingCamera = true;
+			}
+			if (buttons[JOYSTICK_RIGHT_BUTTON] == GLFW_RELEASE) {
+				if (changingCamera) {
+					isThirdCamera = !isThirdCamera;
+					std::cout << "Changed Camera" << std::endl;
+				}
+				changingCamera = false;
+			}
+		}
+			
+		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		//	camera->mouseMoveCamera(0, offsetY, deltaTime);
 		offsetX = 0;
 		offsetY = 0;
 
@@ -1369,13 +1460,7 @@ bool processInput(bool continueApplication) {
             modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0.0, 0.0, -0.2));
             animationHeroeIndex = 2;
         }
-        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-            animationHeroeIndex = 3;
-        }
-        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            animationHeroeIndex = 1;
-        }
-        bool keySpaceStatus = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+        bool keySpaceStatus = (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS);
         if (!isJump && keySpaceStatus) {
             isJump = true;
             startTimeJump = currTime;
@@ -1392,9 +1477,7 @@ bool processInput(bool continueApplication) {
 
 
 void prepareScene(){
-
 	terrain.setShader(&shaderTerrain);
-	
 	modelRock.setShader(&shaderMulLighting);
 	modelArc.setShader(&shaderMulLighting);
 	modelTower.setShader(&shaderMulLighting);
@@ -1579,6 +1662,7 @@ void applicationLoop() {
 
 	glm::vec3 axis;
 	glm::vec3 target;
+	glm::mat4 view;
 	float angleTarget;
 
 	int state = 0;
@@ -1609,8 +1693,8 @@ void applicationLoop() {
 	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(15.5, 4.0, -55.0));
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	
- 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
- 	//modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -190.0f));
+ 	//modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -190.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
@@ -1640,27 +1724,29 @@ void applicationLoop() {
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
 				(float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
 
-		if(modelSelected == 1){
-			axis = glm::axis(glm::quat_cast(modelMatrixHeroe));
-			angleTarget = glm::angle(glm::quat_cast(modelMatrixHeroe));
-			target = modelMatrixHeroe[3];
-		}
-		else{
-			axis = glm::axis(glm::quat_cast(modelMatrixHeroe));
-			angleTarget = glm::angle(glm::quat_cast(modelMatrixHeroe));
-			target = modelMatrixHeroe[3];
-		}
-
 		if(std::isnan(angleTarget))
 			angleTarget = 0.0;
 		if(axis.y < 0)
 			angleTarget = -angleTarget;
 		if(modelSelected == 1)
 			angleTarget -= glm::radians(90.0f);
-		camera->setCameraTarget(target);
-		camera->setAngleTarget(angleTarget);
-		camera->updateCamera();
-		glm::mat4 view = camera->getViewMatrix();
+
+		//configurando el viewMatrix:
+		if (isThirdCamera)
+		{
+			axis = glm::axis(glm::quat_cast(modelMatrixHeroe));
+			angleTarget = glm::angle(glm::quat_cast(modelMatrixHeroe));
+			target = modelMatrixHeroe[3];
+			camera->setAngleTarget(angleTarget);
+			camera->setCameraTarget(target);
+			camera->updateCamera();
+			camera->setDistanceFromTarget(distanceFromTarget);
+			view = camera->getViewMatrix();
+		}
+		else
+		{
+			view = cameraFP->getViewMatrix();
+		}
 
 		shadowBox->update(screenWidth, screenHeight);
 		glm::vec3 centerBox = shadowBox->getCenter();
@@ -1856,6 +1942,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, 0));
 		}
+
 		
 		/*******************************************
 		 * 1.- We render the depth buffer
@@ -2187,6 +2274,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			chec.c = modelMatrixColliderChec[3];
 			chec.e = modelCube.getObb().e*glm::vec3(1.3,5.0,0.0);
 
+
 		// Collider de Heroe
 		AbstractModel::OBB heroeCollider;
 		glm::mat4 modelmatrixColliderHeroe = glm::mat4(modelMatrixHeroe);
@@ -2214,7 +2302,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 			matrixCollider = glm::scale(matrixCollider, std::get<0>(it->second).e * 2.0f);
 			boxCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
 			boxCollider.enableWireMode();
-			//boxCollider.render(matrixCollider);
+			boxCollider.render(matrixCollider);
 		}
 
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator it =
@@ -2268,7 +2356,7 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 					//if((it->first.find("cubo-") && jt->first == "heroe") || (jt->first.find("cubo-") && it->first == "heroe")){
 					if(((it->first.find("cubo-")!= std::string::npos )&& (jt->first.find("heroe")!= std::string::npos))|| ((jt->first.find("cubo-")!= std::string::npos) && (it->first.find("heroe")!= std::string::npos))){
 						accionChec();
-					}else if(it->first.find("warco")!= std::string::npos || jt->first.find("warco")!= std::string::npos){
+					}else if(((it->first.find("warco")!= std::string::npos) && (jt->first.find("heroe")!= std::string::npos)) || (jt->first.find("warco")!= std::string::npos && (it->first.find("heroe")!= std::string::npos))){
 						warco = 1;
 						warcoy = -10.0f;
 						//isColision = false;
@@ -2311,19 +2399,8 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 				}
 			}
 		}
-
-		/*****************/
-		// Camara de Mayow en primera persona
-		// Obtener la posición de Mayow
-		glm::vec3 heroPositionCamara = glm::vec3(modelMatrixHeroe[3]);
-		float yOffset = 5.0f;
-		glm::vec3 cameraPosition = heroPositionCamara + glm::vec3(0.0f, yOffset, -1.0f);
-		// Establecer la posición de la cámara
-		camera->setPosition(cameraPosition);
-
 		std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::
 			iterator itSBB;
-		
 
 		glfwSwapBuffers(window);
 		
@@ -2342,14 +2419,29 @@ shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		source2Pos[1] = matrixModelArc[3].y;
 		source2Pos[2] = matrixModelArc[3].z;
 		alSourcefv(source[2], AL_POSITION, source2Pos);
-	
+
+		listenerPos[0] = modelMatrixHeroe[3].x;
+		listenerPos[1] = modelMatrixHeroe[3].y;
+		listenerPos[2] = modelMatrixHeroe[3].z;
+		alListenerfv(AL_POSITION, listenerPos);
+
+		glm::vec3 upModel = glm::normalize(modelMatrixHeroe[1]);
+		glm::vec3 frontModel = glm::normalize(modelMatrixHeroe[2]);
+
+		listenerOri[0] = frontModel.x;
+		listenerOri[1] = frontModel.y;
+		listenerOri[2] = frontModel.z;
+		listenerOri[3] = upModel.x;
+		listenerOri[4] = upModel.y;
+		listenerOri[5] = upModel.z;
+
 		for(unsigned int i = 0; i < sourcesPlay.size(); i++){
 			if(sourcesPlay[i]){
 				alSourcePlay(source[i]);
 				sourcesPlay[i] = false;
 			}
 		}
-		//isOn = true;
+		isOn = true;
 
 	}
 }
