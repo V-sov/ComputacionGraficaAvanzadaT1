@@ -1180,7 +1180,7 @@ bool processInput(bool continueApplication) {
 
         bool presionarEnter = (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) || 
                               (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS);
-                              (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[2] == GLFW_PRESS);
+                              (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS);
         int p3 = glfwGetKey(window, GLFW_KEY_ENTER);
         if (textureActivaID == textureScreen2ID || textureActivaID == textureMuerteID) {
             ctrlRelease = false;
@@ -1216,9 +1216,11 @@ bool processInput(bool continueApplication) {
             keyrelease = false;
             textureActivaID = textureStartID;        
         }
-        else if (!presionarOpcion && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        else if (!presionarOpcion && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CROSS_BUTTON] == GLFW_PRESS)) {
             presionarOpcion = true;
+        const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
             glfwGetKey(window, GLFW_KEY_LEFT_CONTROL);
+            (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CROSS_BUTTON]);
             if (textureActivaID == textureStartID && !muerte && ctrlRelease) {
                 textureActivaID = textureControlID;
             }
@@ -1237,16 +1239,16 @@ bool processInput(bool continueApplication) {
                 textureActivaID = textureKeysID;
             }
         }
-        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+        else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE || (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CROSS_BUTTON] == GLFW_RELEASE)) {
             presionarOpcion = false;
         }
-        if (textureActivaID == textureMenuID && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+        if (textureActivaID == textureMenuID && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS || (textureActivaID == textureMenuID && (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS))) {
             textureActivaID = textureStartID;
             menuRelease = false;
             iniciaPartida = false;
             pauseInicio = true;
         }
-		if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE){
+		if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE && (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_RELEASE)){
 			iniciorel = true;
 		}
     } else if (muerte == true && iniciaPartida == true && iniciorel) {
@@ -1254,9 +1256,9 @@ bool processInput(bool continueApplication) {
         if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS || (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS)){
 			if(starmur == 0){
 				starmur = 1;
+			}
 				modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
 				modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
-			}
 				iniciaPartida = false;
 				muerteRelease = false;
 				textureActivaID = textureMenuID;
@@ -1264,6 +1266,8 @@ bool processInput(bool continueApplication) {
 			}
 		else{
             textureActivaID = textureMuerteID;
+			modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
+			modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 		}
     }
     // Pantalla STOP
@@ -1295,8 +1299,8 @@ bool processInput(bool continueApplication) {
     if (enableCountSelected && glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_RELEASE) {
         checkRelease = true;
     }
-
-    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE) {
+	const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE && (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_RELEASE)) {
         if (!controlRelease) {
             controlRelease = true;
         } else if (!keyrelease) {
@@ -1307,7 +1311,8 @@ bool processInput(bool continueApplication) {
             muerteRelease = true;
         }
     }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE || (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CROSS_BUTTON] == GLFW_RELEASE)) {
         ctrlRelease = true;
     }
 
@@ -1336,10 +1341,10 @@ bool processInput(bool continueApplication) {
 			*/
 
             const unsigned char * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-            if (buttons[CIRCLE_BUTTON] == GLFW_PRESS)
+            if (buttons[SQUARE_BUTTON] == GLFW_PRESS)
                 std::cout << "Se presiona x" << std::endl;
 
-            if (!isJump && buttons[CIRCLE_BUTTON] == GLFW_PRESS) {
+            if (!isJump && buttons[SQUARE_BUTTON] == GLFW_PRESS) {
                 isJump = true;
                 startTimeJump = currTime;
                 tmv = 0;
@@ -1693,8 +1698,8 @@ void applicationLoop() {
 	matrixModelIsle = glm::translate(matrixModelIsle, glm::vec3(15.5, 4.0, -55.0));
 	matrixModelIsle = glm::rotate(matrixModelIsle, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	
- 	//modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
- 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -190.0f));
+ 	modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, 40.0f));
+ 	//modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(45.0f, 00.05f, -190.0f));
 	modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(180.0f), glm::vec3(0, 1, 0));
 
 	lastTime = TimeManager::Instance().GetTime();
