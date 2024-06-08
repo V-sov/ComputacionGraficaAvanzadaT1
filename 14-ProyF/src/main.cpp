@@ -1308,7 +1308,7 @@ bool processInput(bool continueApplication) {
 		{
 			glm::vec3 heroView = glm::vec3(modelMatrixHeroe[3]);
 			float yOffset = 5.0f;
-			float rotationSpeed = 0.25f;
+			float rotationSpeed = 1.14592f;
 			glm::vec3 cameraPosition = heroView + glm::vec3(0.0f, yOffset, -1.0f);
 			// Establecer la posición de la cámara
 			cameraFP->setPosition(cameraPosition);
