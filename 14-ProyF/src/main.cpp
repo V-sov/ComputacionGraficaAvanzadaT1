@@ -5,27 +5,22 @@
 #define CIRCLE_BUTTON 1
 #define CROSS_BUTTON 2
 #define SQUARE_BUTTON 0
-
 // Botones de los joysticks
 #define JOYSTICK_LEFT_BUTTON 10
 #define JOYSTICK_RIGHT_BUTTON 11
-
 // Botones direccionales (D-pad)
 #define DPAD_UP 12
 #define DPAD_DOWN 13
 #define DPAD_LEFT 14
 #define DPAD_RIGHT 15
-
 // Botones de los hombros
 #define L1_BUTTON 4
 #define R1_BUTTON 5
 #define L2_BUTTON 6
 #define R2_BUTTON 7
-
 // Botones de opciones
 #define START_BUTTON 8
 #define SELECT_BUTTON 9
-
 #define LEFT_JOYSTICK_HORIZONTAL_AXIS 0
 #define LEFT_JOYSTICK_VERTICAL_AXIS 1
 
@@ -1175,7 +1170,7 @@ bool processInput(bool continueApplication) {
         const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
 
         bool presionarEnter = (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) || 
-                              (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[CIRCLE_BUTTON] == GLFW_PRESS);
+                              (glfwJoystickPresent(GLFW_JOYSTICK_1) && buttons && buttons[2] == GLFW_PRESS);
         int p3 = glfwGetKey(window, GLFW_KEY_ENTER);
         if (textureActivaID == textureScreen2ID || textureActivaID == textureMuerteID) {
             ctrlRelease = false;
