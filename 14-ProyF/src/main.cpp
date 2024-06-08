@@ -1,7 +1,36 @@
 #define _USE_MATH_DEFINES
+
+// Botones de acción
 #define TRIANGLE_BUTTON 3
 #define CIRCLE_BUTTON 1
-#define JOYSTICK_LEFT_BUTTON 0 // Suponiendo que el botón izquierdo del joystick tiene el índice 0
+#define CROSS_BUTTON 2
+#define SQUARE_BUTTON 0
+
+// Botones de los joysticks
+#define JOYSTICK_LEFT_BUTTON 10
+#define JOYSTICK_RIGHT_BUTTON 11
+
+// Botones direccionales (D-pad)
+#define DPAD_UP 12
+#define DPAD_DOWN 13
+#define DPAD_LEFT 14
+#define DPAD_RIGHT 15
+
+// Botones de los hombros
+#define L1_BUTTON 4
+#define R1_BUTTON 5
+#define L2_BUTTON 6
+#define R2_BUTTON 7
+
+// Botones de opciones
+#define START_BUTTON 8
+#define SELECT_BUTTON 9
+
+#define LEFT_JOYSTICK_HORIZONTAL_AXIS 0
+#define LEFT_JOYSTICK_VERTICAL_AXIS 1
+
+// Botón central (a menudo tiene un logo de la consola o del fabricante)
+#define HOME_BUTTON 16
 
 #include <cmath>
 //glew include
@@ -935,7 +964,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	else 
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textureParticlesFountain.freeImage(); // Liberamos memoria
-
 */
 
 	/*******************************************
@@ -1019,8 +1047,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
-
 
 void destroy() {
 	glfwDestroyWindow(window);
@@ -1271,7 +1297,6 @@ bool processInput(bool continueApplication) {
             const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
             //std::cout << "Right Stick X axis: " << axes[2] << std::endl;
             //std::cout << "Right Stick Y axis: " << axes[3] << std::endl;
-
             if (fabs(axes[1]) > 0.2) {
                 modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0, 0, -axes[1] * 0.1));
                 animationHeroeIndex = 2;
@@ -1280,19 +1305,20 @@ bool processInput(bool continueApplication) {
                 modelMatrixHeroe = glm::rotate(modelMatrixHeroe, glm::radians(-axes[0] * 0.5f), glm::vec3(0, 1, 0));
                 animationHeroeIndex = 2;
             }
-
+			/*
             if (fabs(axes[2]) > 0.2) {
                 camera->mouseMoveCamera(-axes[2], 0.0, deltaTime);
             }
             if (fabs(axes[3]) > 0.2) {
                 camera->mouseMoveCamera(0.0, -axes[3], deltaTime);
             }
+			*/
 
             const unsigned char * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-            if (buttons[0] == GLFW_PRESS)
+            if (buttons[CIRCLE_BUTTON] == GLFW_PRESS)
                 std::cout << "Se presiona x" << std::endl;
 
-            if (!isJump && buttons[0] == GLFW_PRESS) {
+            if (!isJump && buttons[CIRCLE_BUTTON] == GLFW_PRESS) {
                 isJump = true;
                 startTimeJump = currTime;
                 tmv = 0;
@@ -1322,6 +1348,28 @@ bool processInput(bool continueApplication) {
 				cameraFP->rotateLeftRight(rotationSpeed, false); // Rotación hacia la derecha
 			if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT)== GLFW_PRESS)
 				cameraFP->mouseMoveCamera(offsetX, offsetY, deltaTime);
+
+			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+				int axisCount;
+				const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axisCount);
+				const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+
+				float leftJoystickHorizontal = axes[LEFT_JOYSTICK_HORIZONTAL_AXIS];
+				float leftJoystickVertical = axes[LEFT_JOYSTICK_VERTICAL_AXIS];
+
+				// Movimiento de la cámara hacia adelante y hacia atrás
+				if (leftJoystickVertical < -0.1f) {
+					cameraFP->moveFrontCamera(true, deltaTime);
+				}
+				if (leftJoystickVertical > 0.1f) {
+					cameraFP->moveFrontCamera(false, deltaTime);
+				}
+				// Rotación izquierda y derecha con los botones R1 y R2
+				if (buttons[R2_BUTTON] == GLFW_PRESS)
+					cameraFP->rotateLeftRight(rotationSpeed, false); // Rotación hacia la derecha
+				if (buttons[L2_BUTTON] == GLFW_PRESS)
+					cameraFP->rotateLeftRight(rotationSpeed, true); // Rotación hacia la izquierda
+			}
 		}
 		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
 		{
@@ -1335,6 +1383,21 @@ bool processInput(bool continueApplication) {
 				std::cout << "Changed Camera" << std::endl;
 			}
 			changingCamera = false;
+		}
+		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+			int buttonCount;
+			const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+
+			if (buttons[JOYSTICK_RIGHT_BUTTON] == GLFW_PRESS) {
+				changingCamera = true;
+			}
+			if (buttons[JOYSTICK_RIGHT_BUTTON] == GLFW_RELEASE) {
+				if (changingCamera) {
+					isThirdCamera = !isThirdCamera;
+					std::cout << "Changed Camera" << std::endl;
+				}
+				changingCamera = false;
+			}
 		}
 			
 		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -1376,13 +1439,7 @@ bool processInput(bool continueApplication) {
             modelMatrixHeroe = glm::translate(modelMatrixHeroe, glm::vec3(0.0, 0.0, -0.2));
             animationHeroeIndex = 2;
         }
-        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
-            animationHeroeIndex = 3;
-        }
-        if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            animationHeroeIndex = 1;
-        }
-        bool keySpaceStatus = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+        bool keySpaceStatus = (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS);
         if (!isJump && keySpaceStatus) {
             isJump = true;
             startTimeJump = currTime;
@@ -1399,9 +1456,7 @@ bool processInput(bool continueApplication) {
 
 
 void prepareScene(){
-
 	terrain.setShader(&shaderTerrain);
-	
 	modelRock.setShader(&shaderMulLighting);
 	modelArc.setShader(&shaderMulLighting);
 	modelTower.setShader(&shaderMulLighting);

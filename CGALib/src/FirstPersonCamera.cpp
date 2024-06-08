@@ -49,7 +49,6 @@ void FirstPersonCamera::moveFrontCamera(bool dir, float dt) {
 
 // Modificado para realizar una rotación alrededor del eje Y
 void FirstPersonCamera::rotateLeftRight(float angle, bool left) {
-
     if(left) {
         // Rotación hacia la izquierda
         this->yaw -= angle;
@@ -57,6 +56,5 @@ void FirstPersonCamera::rotateLeftRight(float angle, bool left) {
         // Rotación hacia la derecha
         this->yaw += angle;
     }
-
     updateCamera(); // Actualizar la cámara después de la rotación
 }
